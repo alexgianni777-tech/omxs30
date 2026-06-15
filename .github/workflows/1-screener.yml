@@ -1,0 +1,29 @@
+name: 1 · Daglig screener
+
+on:
+  schedule:
+    - cron: '30 6 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Kör screener → Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node notify.js omxs30-screener.js
+      - name: Spara loggen
+        run: |
+          git config user.name "omxs30-bot"
+          git config user.email "actions@github.com"
+          git add candidates-log.csv || true
+          git commit -m "Logg $(date -u +%F)" || echo "Inget att committa"
+          git push || echo "Inget att pusha"
