@@ -23,6 +23,11 @@ const fs = require('fs');
  *  Varje kandidat får en TRADE-PLAN: entry ≈ senaste, stop på
  *  1.2×ATR, mål +1% och 1R, samt R/R. Plus volym- och 52v-info.
  *
+ *  FÄRSKHETSVAKT: varje ticker kontrolleras mot senaste handelsdag.
+ *  Gammal (cachad) data ger retry mot andra Yahoo-värden, och om
+ *  den kvarstår skrivs en ⚠-varning överst i utskriften istället
+ *  för att gammal data tyst presenteras som färsk.
+ *
  *  Detta är ett URVALSVERKTYG — ingen köpsignal. Du väljer,
  *  du sätter risken, och 0 trades en dag utan läge är ett beslut.
  *
@@ -62,6 +67,26 @@ const EARNINGS = {
 const EARNINGS_WARN_DAYS = 5;
 
 /* ------------------------- data ------------------------- */
+// Räknar hur många handelsdagar (mån–fre) den senaste stapeln ligger efter.
+// 0 = färsk (senaste handelsdag eller idag). Ingen helgdagskalender —
+// svenska röda dagar kan ge falsklarm; hellre en varning för mycket än en för lite.
+function tradingDaysBehind(lastBarDate) {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  const lastD = new Date(lastBarDate);
+  lastD.setUTCHours(0, 0, 0, 0);
+  let count = 0;
+  while (d > lastD) {
+    const dow = d.getUTCDay();
+    if (dow !== 0 && dow !== 6) count++;
+    d.setUTCDate(d.getUTCDate() - 1);
+    if (count > 10) break; // skydd mot oändlig loop vid trasiga datum
+  }
+  // Senaste handelsdagens stängning är färskast möjliga när vi kör före/under dagens handel:
+  // 1 vardag "efter" räknas därför som färskt (0), 2+ som gammalt.
+  return Math.max(0, count - 1);
+}
+
 async function fetchDaily(ticker, days = 400, tries = 3) {
   const to = Math.floor(Date.now() / 1000);
   const from = to - days * 86400;
@@ -85,6 +110,20 @@ async function fetchDaily(ticker, days = 400, tries = 3) {
         bars.push({ t: r.timestamp[i], o: q.open[i], h: q.high[i], l: q.low[i], c: q.close[i], v: q.volume[i] ?? 0 });
       }
       if (bars.length < 220) throw new Error(`only ${bars.length} bars`);
+
+      // --- FÄRSKHETSVAKT ---
+      // Cachad/gammal serie? Behandla som fel → retry roterar till andra värden.
+      // Kvarstår den på sista försöket: acceptera datan men FLAGGA den, så att
+      // digesten kan varna högst upp istället för att tyst visa gammalt som nytt.
+      const lastBarDate = new Date(bars[bars.length - 1].t * 1000);
+      const staleDays = tradingDaysBehind(lastBarDate);
+      if (staleDays > 0) {
+        if (attempt < tries - 1) {
+          throw new Error(`stale data: senaste stapel ${lastBarDate.toISOString().slice(0, 10)} (${staleDays} handelsdag(ar) gammal)`);
+        }
+        bars.staleDays = staleDays;
+        bars.staleDate = lastBarDate.toISOString().slice(0, 10);
+      }
       return bars;
     } catch (e) {
       lastErr = e;
@@ -264,10 +303,13 @@ async function main() {
   console.log(`\nOMXS30 SCREENER · ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
 
+  const staleTickers = [];   // namn (senaste datum) på tickers med gammal data
+
   // 0) Index — marknadsvädret
   let idx;
   try {
     const ib = await fetchDaily(INDEX_TICKER);
+    if (ib.staleDays) staleTickers.push(`^OMX (${ib.staleDate})`);
     const ic = ib.map(b => b.c);
     idx = {
       c: last(ic), r5: ret(ic, 5), r21: ret(ic, 21), r63: ret(ic, 63),
@@ -282,12 +324,24 @@ async function main() {
   const rows = [], failed = [];
   for (const [ticker, name] of TICKERS) {
     try {
-      rows.push(analyse(name, ticker, await fetchDaily(ticker), idx));
+      const bars = await fetchDaily(ticker);
+      if (bars.staleDays) staleTickers.push(`${name} (${bars.staleDate})`);
+      rows.push(analyse(name, ticker, bars, idx));
       process.stdout.write('.');
     } catch (e) { failed.push(`${ticker} (${e.message})`); process.stdout.write('x'); }
     await new Promise(res => setTimeout(res, 250));
   }
   console.log('\n');
+
+  // FÄRSKHETSVARNING — skrivs FÖRE allt annat så den inte kan missas
+  if (staleTickers.length) {
+    console.log('⚠⚠⚠ VARNING: GAMMAL DATA ⚠⚠⚠');
+    console.log(`${staleTickers.length} av ${TICKERS.length + 1} tickers har äldre data än senaste handelsdag.`);
+    console.log('Siffror, nivåer och trade-planer nedan kan vara INAKTUELLA — lita inte på dagens ark.');
+    console.log(`Berörda: ${staleTickers.slice(0, 8).join(', ')}${staleTickers.length > 8 ? ` … +${staleTickers.length - 8} till` : ''}`);
+    console.log('(Kör om manuellt senare på dagen, eller verifiera kurserna direkt i Avanza.)');
+    console.log('─────────────────────────────────────────────────────────────');
+  }
 
   // Marknadsväder
   if (idx.c != null) {
@@ -337,6 +391,7 @@ async function main() {
   logCandidates(dateStr, { momentum, squeeze, bounce, weakest });
 
   if (failed.length) console.log(`\nMisslyckade tickers: ${failed.join(', ')}`);
+  if (staleTickers.length) console.log(`\n⚠ Påminnelse: ${staleTickers.length} tickers hade GAMMAL DATA — se varningen överst.`);
 
   console.log(`
 ─────────────────────────────────────────────────────────────
