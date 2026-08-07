@@ -53,5 +53,29 @@ async function sendTelegram(text) {
     output = `${script} kraschade:\n` + (e.stdout || '') + '\n' + (e.message || '');
   }
   await sendTelegram(output.trim() || '(tom utskrift)');
+
+  // ── AG Investment Capital dashboard ──────────────────────────────────────
+  if (process.env.DASHBOARD_URL && process.env.DASHBOARD_IMPORT_SECRET && script === 'omxs30-screener.js') {
+    try {
+      const dashRes = await fetch(`${process.env.DASHBOARD_URL}/api/telegram-import`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.DASHBOARD_IMPORT_SECRET}`,
+        },
+        body: JSON.stringify({ text: output.trim() }),
+      });
+      if (dashRes.ok) {
+        const j = await dashRes.json();
+        console.log(`✅ Dashboard: session ${j.sessionId} (${j.date}), ${j.candidateCount} kandidater`);
+      } else {
+        console.warn(`⚠️ Dashboard HTTP ${dashRes.status}`);
+      }
+    } catch (e) {
+      console.warn('⚠️ Dashboard-import fel:', e.message);
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   console.log('Klart:', script);
 })();
