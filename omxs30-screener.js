@@ -200,7 +200,15 @@ function distToHigh(bars, days) {
 function volSurge(bars, n = 20) {
   if (bars.length < n + 1) return null;
   const avg = bars.slice(-n - 1, -1).reduce((a, b) => a + b.v, 0) / n;
-  return avg ? last(bars).v / avg : null;
+  const todayVol = last(bars).v;
+  // Before market opens Yahoo Finance includes an empty bar with volume=0.
+  // Fall back to the previous completed trading day to avoid 0.0x every morning.
+  if (!todayVol) {
+    if (bars.length < n + 2) return null;
+    const prevAvg = bars.slice(-n - 2, -2).reduce((a, b) => a + b.v, 0) / n;
+    return prevAvg ? bars[bars.length - 2].v / prevAvg : null;
+  }
+  return avg ? todayVol / avg : null;
 }
 
 /* ------------------------ analys ------------------------ */
