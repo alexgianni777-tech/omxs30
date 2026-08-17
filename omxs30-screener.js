@@ -143,13 +143,22 @@ function sma(xs, n, off = 0) {
 }
 function rsi14(closes) {
   const n = 14;
-  if (closes.length < n + 1) return null;
-  let g = 0, l = 0;
-  for (let i = closes.length - n; i < closes.length; i++) {
+  if (closes.length < 2 * n + 1) return null; // need warmup for Wilder's EMA
+  // Seed: simple average over first n changes (warmup period)
+  let avgG = 0, avgL = 0;
+  const seed = closes.length - 2 * n;
+  for (let i = seed; i < seed + n; i++) {
     const d = closes[i] - closes[i - 1];
-    d > 0 ? g += d : l -= d;
+    d > 0 ? avgG += d : avgL -= d;
   }
-  return l === 0 ? 100 : 100 - 100 / (1 + g / l);
+  avgG /= n; avgL /= n;
+  // Wilder's EMA smoothing for the remaining n bars
+  for (let i = seed + n; i < closes.length; i++) {
+    const d = closes[i] - closes[i - 1];
+    avgG = (avgG * (n - 1) + (d > 0 ? d : 0)) / n;
+    avgL = (avgL * (n - 1) + (d < 0 ? -d : 0)) / n;
+  }
+  return avgL === 0 ? 100 : 100 - 100 / (1 + avgG / avgL);
 }
 function ret(closes, days) {
   if (closes.length < days + 1) return null;
@@ -250,13 +259,24 @@ function zscore(rows, key) {
 function logCandidates(dateStr, lists) {
   if (!LOG_CANDIDATES) return;
   const path = 'candidates-log.csv';
-  const header = 'date,list,name,ticker,close,rs63,r21,rsi,pctB,atrPct,vol,dHigh20\n';
+  const header = 'date,list,name,ticker,close,rs63,r21,rsi,pctB,atrPct,vol,dHigh20,entry,stop,target,rr,holdDays,dir\n';
   if (!fs.existsSync(path)) fs.writeFileSync(path, header);
   const f2 = v => (v == null || !isFinite(v)) ? '' : v.toFixed(2);
+  const LIST_BUCKET = { momentum: 'MOMENTUM', squeeze: 'SQUEEZE', bounce: 'STUDS', weakest: 'SVAGAST' };
+  const LIST_DIR    = { momentum: 'LONG',     squeeze: 'LONG',    bounce: 'LONG',  weakest: 'SHORT'   };
   let out = '';
   for (const [listName, items] of Object.entries(lists)) {
+    const bucket = LIST_BUCKET[listName] ?? 'MOMENTUM';
+    const dir    = LIST_DIR[listName]    ?? 'LONG';
+    const { targetMult, holdDays } = BUCKET_PARAMS[bucket];
     items.forEach(r => {
-      out += `${dateStr},${listName},${r.name},${r.ticker},${f2(r.c)},${f2(r.rs63)},${f2(r.r21)},${f2(r.rsi)},${f2(r.pctB)},${f2(r.atrPct)},${f2(r.vol)},${f2(r.dHigh20)}\n`;
+      const entry      = r.c;
+      const stopDist   = r.atrAbs != null ? 1.2 * r.atrAbs          : null;
+      const targetDist = r.atrAbs != null ? targetMult * r.atrAbs   : null;
+      const stop   = stopDist   != null ? (dir === 'LONG' ? entry - stopDist   : entry + stopDist)   : null;
+      const target = targetDist != null ? (dir === 'LONG' ? entry + targetDist : entry - targetDist) : null;
+      const rr     = (stopDist != null && stopDist > 0) ? targetDist / stopDist : null;
+      out += `${dateStr},${listName},${r.name},${r.ticker},${f2(r.c)},${f2(r.rs63)},${f2(r.r21)},${f2(r.rsi)},${f2(r.pctB)},${f2(r.atrPct)},${f2(r.vol)},${f2(r.dHigh20)},${f2(entry)},${f2(stop)},${f2(target)},${f2(rr)},${holdDays},${dir}\n`;
     });
   }
   fs.appendFileSync(path, out);
@@ -264,20 +284,28 @@ function logCandidates(dateStr, lists) {
 }
 
 /* ---------------------- trade-plan ---------------------- */
-function plan(r, dir = 'LONG') {
+// ATR-relative targets + mandatory time barrier per bucket (Claude analysis 2026-08-12)
+const BUCKET_PARAMS = {
+  MOMENTUM: { targetMult: 2.0, holdDays: 10 },
+  SQUEEZE:  { targetMult: 2.5, holdDays: 15 },
+  STUDS:    { targetMult: 1.5, holdDays: 5  },
+  SVAGAST:  { targetMult: 2.0, holdDays: 10 },
+};
+function plan(r, dir = 'LONG', bucket = 'MOMENTUM') {
   if (r.atrAbs == null) return '';
-  const stopDist = 1.2 * r.atrAbs;
-  const entry = r.c;
-  const stop  = dir === 'LONG' ? entry - stopDist : entry + stopDist;
-  const t1pct = dir === 'LONG' ? entry * 1.01 : entry * 0.99;
-  const t1R   = dir === 'LONG' ? entry + stopDist : entry - stopDist;
-  const rr1pct = (Math.abs(t1pct - entry) / stopDist).toFixed(2);
+  const { targetMult, holdDays } = BUCKET_PARAMS[bucket] ?? BUCKET_PARAMS.MOMENTUM;
+  const stopDist   = 1.2 * r.atrAbs;
+  const targetDist = targetMult * r.atrAbs;
+  const entry  = r.c;
+  const stop   = dir === 'LONG' ? entry - stopDist   : entry + stopDist;
+  const target = dir === 'LONG' ? entry + targetDist : entry - targetDist;
+  const rr     = (targetDist / stopDist).toFixed(2);
   let size = '';
   if (RISK_PER_TRADE_SEK && stopDist > 0) {
     const shares = Math.floor(RISK_PER_TRADE_SEK / stopDist);
     size = ` · storlek ~${shares} st (~${(shares * entry).toFixed(0)} kr exponering vid ${RISK_PER_TRADE_SEK} kr risk)`;
   }
-  return `      plan(${dir}): entry ~${entry.toFixed(2)} · stop ${stop.toFixed(2)} (1.2×ATR) · mål +1% ${t1pct.toFixed(2)} (R/R ${rr1pct}) · 1R ${t1R.toFixed(2)}${size}`;
+  return `      plan(${dir}): entry ~${entry.toFixed(2)} · stop ${stop.toFixed(2)} (1.2×ATR) · mål ${target.toFixed(2)} (${targetMult}×ATR, R/R ${rr}) · max ${holdDays} dagar${size}`;
 }
 
 /* ------------------------- print ------------------------- */
@@ -298,11 +326,11 @@ function warnings(r) {
 function row(r) {
   return `${r.name.padEnd(14)}${f(r.c, 2, 9)} | RS3m ${f(r.rs63)} | 1m ${f(r.r21)}% | RSI ${f(r.rsi, 0, 4)} | %B ${f(r.pctB, 2, 5)} | ATR ${f(r.atrPct)}% | vol ${f(r.vol, 1, 4)}x | ↔20dH ${f(r.dHigh20)}%${warnings(r)}`;
 }
-function section(title, items, dir = 'LONG', note = '') {
+function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
   console.log(`\n=== ${title} ===`);
   if (note) console.log(`    ${note}`);
   if (!items.length) { console.log('    Inga kvalificerade idag.'); return; }
-  items.forEach((r, i) => { console.log(`${i + 1}. ${row(r)}`); console.log(plan(r, dir)); });
+  items.forEach((r, i) => { console.log(`${i + 1}. ${row(r)}`); console.log(plan(r, dir, bucket)); });
 }
 
 /* -------------------------- main -------------------------- */
@@ -388,13 +416,13 @@ async function main() {
     .sort((a, b) => a.momScore - b.momScore).slice(0, 3);
 
   section('1 · MOMENTUM — relativ styrka mot index (fortsättnings-long)', momentum, 'LONG',
-    'Starkast i flocken, i trend, ej överköpt. Bäst i medvind.');
+    'Starkast i flocken, i trend, ej överköpt. Bäst i medvind.', 'MOMENTUM');
   section('2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt)', squeeze, 'LONG',
-    'Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.');
+    'Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.', 'SQUEEZE');
   section('3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont)', bounce, 'LONG',
-    'RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.');
+    'RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.', 'STUDS');
   section('4 · SVAGAST — undvik long / ev. short-idéer', weakest, 'SHORT',
-    'Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.');
+    'Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.', 'SVAGAST');
 
   logCandidates(dateStr, { momentum, squeeze, bounce, weakest });
 
@@ -404,9 +432,8 @@ async function main() {
   console.log(`
 ─────────────────────────────────────────────────────────────
 DIN DEL AV JOBBET:
- 1. Ta topp 3–5 till Claude: "kolla nyheter/rapporter/makro på X, Y, Z".
-    Screenern ser INTE rapportdatum eller nyheter — det är människans jobb.
- 2. Välj 0–2. Ingen kvalificerad = ingen trade. Det är disciplin, inte passivitet.
+ 1. Kontrollera rapport-flagga (⚠) och gap — ta inte position dagen före rapport.
+ 2. Ta alla kvalificerade inom bucket. Ingen kvalificerad = ingen trade. Det är disciplin, inte passivitet.
  3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
     (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
  4. LOGGA varje trade (setup, val, utfall). Efter 20–30 trades: kör vinst-
