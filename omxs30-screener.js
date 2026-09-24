@@ -345,15 +345,19 @@ async function main() {
   let idx;
   try {
     const ib = await fetchDaily(INDEX_TICKER);
-    if (ib.staleDays) staleTickers.push(`^OMX (${ib.staleDate})`);
+    // This report runs after the Swedish close; yesterday's bar is not current.
+    const indexBarDate = new Date(ib[ib.length - 1].t * 1000).toISOString().slice(0, 10);
+    if (indexBarDate !== dateStr) {
+      throw new Error(`^OMX senaste kursstapel ${indexBarDate}, kräver ${dateStr}`);
+    }
     const ic = ib.map(b => b.c);
     idx = {
       c: last(ic), r5: ret(ic, 5), r21: ret(ic, 21), r63: ret(ic, 63),
       rsi: rsi14(ic), above50: last(ic) > sma(ic, 50), above200: last(ic) > sma(ic, 200),
     };
   } catch (e) {
-    console.log(`(Kunde inte hämta index ^OMX: ${e.message} — kör utan RS-justering)`);
-    idx = { r21: 0, r63: 0 };
+    // Without current OMXS30 data the weather and relative-strength ranks are unsafe.
+    throw new Error(`Ingen färsk OMXS30-indexdata för ${dateStr}: ${e.message}`);
   }
 
   // 1) Bolagen
