@@ -25,9 +25,7 @@ if (!ALLOWED.includes(script)) {
 
 async function sendTelegram(text) {
   if (!TOKEN || !CHAT_ID) {
-    console.error('Saknar TELEGRAM_TOKEN / TELEGRAM_CHAT_ID — skriver bara ut nedan.');
-    console.log(text);
-    return;
+    throw new Error('Saknar TELEGRAM_TOKEN / TELEGRAM_CHAT_ID');
   }
   const header = `📊 ${script.replace('omxs30-', '').replace('.js', '').toUpperCase()} · ${new Date().toISOString().slice(0, 10)}\n`;
   const full = header + text;
@@ -40,7 +38,7 @@ async function sendTelegram(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: CHAT_ID, text: '```\n' + chunk + '\n```', parse_mode: 'Markdown' }),
     });
-    if (!res.ok) console.error('Telegram-fel:', res.status, await res.text());
+    if (!res.ok) throw new Error('Telegram HTTP ' + res.status);
     await new Promise(r => setTimeout(r, 400));
   }
 }
@@ -50,7 +48,18 @@ async function sendTelegram(text) {
   try {
     output = execFileSync('node', [script], { encoding: 'utf8', timeout: 180000 });
   } catch (e) {
-    output = `${script} kraschade:\n` + (e.stdout || '') + '\n' + (e.message || '');
+    // Do not send partial plans or import failed output to the dashboard.
+    const details = String(e.stderr || e.message || 'Okänt fel').trim().slice(0, 600);
+    const alert = '⚠️ OMXS30-SCREENER STOPPAD — ' + new Date().toISOString().slice(0, 10) +
+      '\nIngen handelslista eller dashboard-import skickades. Kontrollera indexdata och kör om.\n' + details;
+    console.error(alert);
+    try {
+      await sendTelegram(alert);
+    } catch (telegramError) {
+      console.error('Kunde inte skicka felmeddelande till Telegram:', telegramError.message);
+    }
+    process.exitCode = 1;
+    return;
   }
   await sendTelegram(output.trim() || '(tom utskrift)');
 
