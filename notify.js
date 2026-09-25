@@ -27,7 +27,7 @@ async function sendTelegram(text) {
   if (!TOKEN || !CHAT_ID) {
     throw new Error('Saknar TELEGRAM_TOKEN / TELEGRAM_CHAT_ID');
   }
-  const header = `📊 ${script.replace('omxs30-', '').replace('.js', '').toUpperCase()} · ${new Date().toISOString().slice(0, 10)}\n`;
+  const header = `📊 ${script.replace('omxs30-', '').replace('.js', '').toUpperCase()} · ${process.env.REPORT_DATE || new Date().toISOString().slice(0, 10)}\n`;
   const full = header + text;
   let s = full;
   const chunks = [];
