@@ -7,6 +7,11 @@ on:
     - cron: '15 6,9,12,15,18 * * 1-6'
       timezone: 'Europe/Stockholm'
   workflow_dispatch:
+    inputs:
+      report_date:
+        description: 'Rapportdag att köra om (YYYY-MM-DD), eller tom för senaste'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -26,8 +31,12 @@ jobs:
         id: report
         env:
           SCHEDULE: ${{ github.event.schedule }}
+          REQUESTED_DATE: ${{ inputs.report_date }}
         run: |
-          if [ "$SCHEDULE" = '15 6,9,12,15,18 * * 1-6' ]; then
+          if [ -n "$REQUESTED_DATE" ]; then
+            [[ "$REQUESTED_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "Ogiltigt rapportdatum"; exit 1; }
+            REPORT_DATE="$REQUESTED_DATE"
+          elif [ "$SCHEDULE" = '15 6,9,12,15,18 * * 1-6' ]; then
             REPORT_DATE=$(node report-date.js --retry)
             echo "RETRY=1" >> "$GITHUB_ENV"
           else
