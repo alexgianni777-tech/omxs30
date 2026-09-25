@@ -337,7 +337,7 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
 const reportDate = require('./report-date');
 
 async function main() {
-  const dateStr = reportDate();
+  const dateStr = process.env.REPORT_DATE || reportDate();
   console.log(`\nOMXS30 SCREENER · ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
 
