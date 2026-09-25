@@ -4,10 +4,16 @@ on:
   schedule:
     - cron: '15 22 * * 1-5'
       timezone: 'Europe/Stockholm'
+    - cron: '15 6,9,12,15,18 * * 1-6'
+      timezone: 'Europe/Stockholm'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: omxs30-screening
+  cancel-in-progress: false
 
 jobs:
   run:
@@ -16,17 +22,40 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
+      - name: Välj handelsdag och kontrollera om listan redan skickats
+        id: report
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$SCHEDULE" = '15 6,9,12,15,18 * * 1-6' ]; then
+            REPORT_DATE=$(node report-date.js --retry)
+            echo "RETRY=1" >> "$GITHUB_ENV"
+          else
+            REPORT_DATE=$(node report-date.js)
+          fi
+          echo "REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
+          echo "Rapportdatum: $REPORT_DATE"
+          if [ -f "sent-reports/$REPORT_DATE" ]; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "Redan skickad; hoppar över utskick."
+          fi
       - name: Kör screener → Telegram + Dashboard
+        if: steps.report.outputs.already != 'true'
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
           DASHBOARD_IMPORT_SECRET: ${{ secrets.DASHBOARD_IMPORT_SECRET }}
         run: node notify.js omxs30-screener.js
-      - name: Spara loggen
+      - name: Spara skickad handelsdag och kandidatlogg
+        if: steps.report.outputs.already != 'true'
         run: |
+          mkdir -p sent-reports
+          printf 'Telegram skickat för %s vid %s\n' "$REPORT_DATE" "$(date -u +%FT%TZ)" > "sent-reports/$REPORT_DATE"
           git config user.name "omxs30-bot"
           git config user.email "actions@github.com"
-          git add candidates-log.csv || true
-          git commit -m "Logg $(date -u +%F)" || echo "Inget att committa"
-          git push || echo "Inget att pusha"
+          git add candidates-log.csv "sent-reports/$REPORT_DATE"
+          git commit -m "Screener skickad $REPORT_DATE"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
