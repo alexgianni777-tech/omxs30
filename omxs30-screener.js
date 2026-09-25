@@ -334,20 +334,9 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
 }
 
 /* -------------------------- main -------------------------- */
-// The scheduled report can run after local midnight, and a manual retry the next
-    // morning should still produce the last completed Swedish trading session.
-    function reportDate(now = new Date()) {
-      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Stockholm', year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', hourCycle: 'h23',
-      }).formatToParts(now).filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
-      const day = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
-      if (Number(parts.hour) < 19) day.setUTCDate(day.getUTCDate() - 1);
-      while (day.getUTCDay() === 0 || day.getUTCDay() === 6) day.setUTCDate(day.getUTCDate() - 1);
-      return day.toISOString().slice(0, 10);
-    }
+const reportDate = require('./report-date');
 
-    async function main() {
+async function main() {
   const dateStr = reportDate();
   console.log(`\nOMXS30 SCREENER · ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
@@ -357,7 +346,8 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
   // 0) Index — marknadsvädret
   let idx;
   try {
-    const ib = await fetchDaily(INDEX_TICKER);
+    const ib = (await fetchDaily(INDEX_TICKER)).filter(b => new Date(b.t * 1000).toISOString().slice(0, 10) <= dateStr);
+    if (!ib.length) throw new Error('Ingen indexstapel på eller före rapportdatum');
     // This report runs after the Swedish close; yesterday's bar is not current.
     const indexBarDate = new Date(ib[ib.length - 1].t * 1000).toISOString().slice(0, 10);
     if (indexBarDate !== dateStr) {
@@ -377,14 +367,23 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
   const rows = [], failed = [];
   for (const [ticker, name] of TICKERS) {
     try {
-      const bars = await fetchDaily(ticker);
-      if (bars.staleDays) staleTickers.push(`${name} (${bars.staleDate})`);
+      const bars = (await fetchDaily(ticker)).filter(b => new Date(b.t * 1000).toISOString().slice(0, 10) <= dateStr);
+      const lastDate = bars.length ? new Date(bars[bars.length - 1].t * 1000).toISOString().slice(0, 10) : 'saknas';
+      if (lastDate !== dateStr) {
+        staleTickers.push(`${name} (${lastDate})`);
+        process.stdout.write('!');
+        continue;
+      }
       rows.push(analyse(name, ticker, bars, idx));
       process.stdout.write('.');
     } catch (e) { failed.push(`${ticker} (${e.message})`); process.stdout.write('x'); }
     await new Promise(res => setTimeout(res, 250));
   }
   console.log('\n');
+  const missing = [...staleTickers, ...failed];
+  if (missing.length) {
+    throw new Error(`Saknar kompletta dagskurser för ${dateStr}: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ` … +${missing.length - 8} till` : ''}. Ingen screening skickas.`);
+  }
 
   // FÄRSKHETSVARNING — skrivs FÖRE allt annat så den inte kan missas
   if (staleTickers.length) {
