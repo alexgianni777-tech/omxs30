@@ -53,6 +53,11 @@ async function sendTelegram(text) {
     const alert = '⚠️ OMXS30-SCREENER STOPPAD — ' + (process.env.REPORT_DATE || new Date().toISOString().slice(0, 10)) +
       '\nIngen handelslista eller dashboard-import skickades. Kontrollera dagskurserna.\n' + details;
     console.error(alert);
+    if (process.env.RETRY === '1' && details.includes('DATA_NOT_READY:')) {
+      console.log('Dagskurser saknas ännu; återförsök senare.');
+      process.exitCode = 75;
+      return;
+    }
     try {
       if (process.env.RETRY !== '1') await sendTelegram(alert);
     } catch (telegramError) {
