@@ -50,11 +50,11 @@ async function sendTelegram(text) {
   } catch (e) {
     // Do not send partial plans or import failed output to the dashboard.
     const details = String(e.stderr || e.message || 'Okänt fel').trim().slice(0, 600);
-    const alert = '⚠️ OMXS30-SCREENER STOPPAD — ' + new Date().toISOString().slice(0, 10) +
-      '\nIngen handelslista eller dashboard-import skickades. Kontrollera indexdata och kör om.\n' + details;
+    const alert = '⚠️ OMXS30-SCREENER STOPPAD — ' + (process.env.REPORT_DATE || new Date().toISOString().slice(0, 10)) +
+      '\nIngen handelslista eller dashboard-import skickades. Kontrollera dagskurserna.\n' + details;
     console.error(alert);
     try {
-      await sendTelegram(alert);
+      if (process.env.RETRY !== '1') await sendTelegram(alert);
     } catch (telegramError) {
       console.error('Kunde inte skicka felmeddelande till Telegram:', telegramError.message);
     }
