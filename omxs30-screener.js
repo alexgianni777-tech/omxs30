@@ -334,8 +334,21 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
 }
 
 /* -------------------------- main -------------------------- */
-async function main() {
-  const dateStr = new Date().toISOString().slice(0, 10);
+// The scheduled report can run after local midnight, and a manual retry the next
+    // morning should still produce the last completed Swedish trading session.
+    function reportDate(now = new Date()) {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Stockholm', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', hourCycle: 'h23',
+      }).formatToParts(now).filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
+      const day = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+      if (Number(parts.hour) < 19) day.setUTCDate(day.getUTCDate() - 1);
+      while (day.getUTCDay() === 0 || day.getUTCDay() === 6) day.setUTCDate(day.getUTCDate() - 1);
+      return day.toISOString().slice(0, 10);
+    }
+
+    async function main() {
+  const dateStr = reportDate();
   console.log(`\nOMXS30 SCREENER · ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
 
