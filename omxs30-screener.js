@@ -360,7 +360,7 @@ async function main() {
     };
   } catch (e) {
     // Without current OMXS30 data the weather and relative-strength ranks are unsafe.
-    throw new Error(`Ingen färsk OMXS30-indexdata för ${dateStr}: ${e.message}`);
+    throw new Error(`DATA_NOT_READY: Ingen färsk OMXS30-indexdata för ${dateStr}: ${e.message}`);
   }
 
   // 1) Bolagen
@@ -382,7 +382,7 @@ async function main() {
   console.log('\n');
   const missing = [...staleTickers, ...failed];
   if (missing.length) {
-    throw new Error(`Saknar kompletta dagskurser för ${dateStr}: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ` … +${missing.length - 8} till` : ''}. Ingen screening skickas.`);
+    throw new Error(`${failed.length ? '' : 'DATA_NOT_READY: '}Saknar kompletta dagskurser för ${dateStr}: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ` … +${missing.length - 8} till` : ''}. Ingen screening skickas.`);
   }
 
   // FÄRSKHETSVARNING — skrivs FÖRE allt annat så den inte kan missas
