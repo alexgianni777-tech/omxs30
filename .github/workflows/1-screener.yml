@@ -45,13 +45,19 @@ jobs:
           echo "REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
           echo "Rapportdatum: $REPORT_DATE"
           if [ -f "sent-reports/$REPORT_DATE" ]; then
-            echo "already=true" >> "$GITHUB_OUTPUT"
-            echo "Redan skickad; hoppar över utskick."
+            if [ -f "dashboard-pending/$REPORT_DATE" ]; then
+              echo "dashboard_only=true" >> "$GITHUB_OUTPUT"
+              echo "Telegram levererat; återförsöker bara dashboard-import."
+            else
+              echo "already=true" >> "$GITHUB_OUTPUT"
+              echo "Redan skickad; hoppar över utskick."
+            fi
           fi
       - name: Kör screener → Telegram + Dashboard
         id: send
         if: steps.report.outputs.already != 'true'
         env:
+          DASHBOARD_ONLY: ${{ steps.report.outputs.dashboard_only }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
@@ -61,21 +67,38 @@ jobs:
           node notify.js omxs30-screener.js
           status=$?
           set -e
-          if [ "$status" -eq 75 ]; then
+          if [ "$status" -eq 75 ] || [ "$status" -eq 76 ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Dagskurser saknas; väntar på nästa omförsök."
+            if [ "$status" -eq 75 ]; then
+              echo "Dagskurser saknas; väntar på nästa omförsök."
+            else
+              echo "Dashboard-import saknas ännu; väntar på nästa omförsök."
+            fi
             exit 0
           fi
           exit "$status"
-      - name: Spara skickad handelsdag och kandidatlogg
+      - name: Spara skickad handelsdag och leveransstatus
         if: steps.report.outputs.already != 'true' && steps.send.outputs.ready != 'false'
+        env:
+          DASHBOARD_ONLY: ${{ steps.report.outputs.dashboard_only }}
         run: |
-          mkdir -p sent-reports
-          printf 'Telegram skickat för %s vid %s\n' "$REPORT_DATE" "$(date -u +%FT%TZ)" > "sent-reports/$REPORT_DATE"
           git config user.name "omxs30-bot"
           git config user.email "actions@github.com"
-          git add candidates-log.csv "sent-reports/$REPORT_DATE"
-          git commit -m "Screener skickad $REPORT_DATE"
+          if [ "$DASHBOARD_ONLY" = 'true' ]; then
+            git add -u -- "dashboard-pending/$REPORT_DATE"
+          else
+            mkdir -p sent-reports
+            printf 'Telegram skickat för %s vid %s\n' "$REPORT_DATE" "$(date -u +%FT%TZ)" > "sent-reports/$REPORT_DATE"
+            git add -- candidates-log.csv "sent-reports/$REPORT_DATE" "report-outputs/$REPORT_DATE.txt"
+            if [ -f "dashboard-pending/$REPORT_DATE" ]; then
+              git add -- "dashboard-pending/$REPORT_DATE"
+            fi
+          fi
+          if git diff --cached --quiet; then
+            echo "Ingen leveransstatus att uppdatera."
+            exit 0
+          fi
+          git commit -m "Uppdatera screener-leverans $REPORT_DATE"
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
