@@ -70,6 +70,7 @@ jobs:
           if [ "$status" -eq 75 ] || [ "$status" -eq 76 ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
             if [ "$status" -eq 75 ]; then
+              echo "waiting=data" >> "$GITHUB_OUTPUT"
               echo "Dagskurser saknas; väntar på nästa omförsök."
             else
               echo "Dashboard-import saknas ännu; väntar på nästa omförsök."
@@ -77,6 +78,26 @@ jobs:
             exit 0
           fi
           exit "$status"
+      - name: Meddela om dagsrapport fortfarande saknas efter sista försöket
+        if: steps.send.outputs.waiting == 'data'
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          hour=$(TZ=Europe/Stockholm date +%H)
+          if [ "${RETRY:-}" != '1' ] || [ "$hour" -lt 18 ] || [ -f "missing-report-alerts/$REPORT_DATE" ]; then
+            exit 0
+          fi
+          node alert-unavailable.js "$REPORT_DATE"
+          mkdir -p missing-report-alerts
+          printf 'Saknad rapport meddelad %s\n' "$(date -u +%FT%TZ)" > "missing-report-alerts/$REPORT_DATE"
+          git config user.name "omxs30-bot"
+          git config user.email "actions@github.com"
+          git add "missing-report-alerts/$REPORT_DATE"
+          git commit -m "Varna om saknad screener $REPORT_DATE"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
       - name: Spara skickad handelsdag och leveransstatus
         if: steps.report.outputs.already != 'true' && steps.send.outputs.ready != 'false'
         env:
