@@ -1,0 +1,57 @@
+OMXS30 SCREENER · 2026-09-25
+Hämtar index + 30 bolag 
+..............................
+
+MARKNADSVÄDER  OMXS30 3295.0 | 5d    0.9% | 1m   -0.8% | 3m    2.9% | RSI  54
+               → MEDVIND (index över SMA50 & SMA200 — long-setups gynnade)
+
+=== 1 · MOMENTUM — relativ styrka mot index (fortsättnings-long) ===
+    Starkast i flocken, i trend, ej överköpt. Bäst i medvind.
+1. SCA              123.30 | RS3m   21.6 | 1m    9.3% | RSI   74 | %B  0.83 | ATR    1.7% | vol  0.6x | ↔20dH   -2.9%
+      plan(LONG): entry ~123.30 · stop 120.76 (1.2×ATR) · mål 127.54 (2×ATR, R/R 1.67) · max 10 dagar
+2. NIBE              45.67 | RS3m   23.9 | 1m    5.9% | RSI   74 | %B  0.95 | ATR    2.2% | vol  0.6x | ↔20dH   -0.3%
+      plan(LONG): entry ~45.67 · stop 44.47 (1.2×ATR) · mål 47.67 (2×ATR, R/R 1.67) · max 10 dagar
+3. SEB              233.90 | RS3m   18.4 | 1m    5.6% | RSI   66 | %B  0.92 | ATR    1.6% | vol  0.9x | ↔20dH   -0.9%
+      plan(LONG): entry ~233.90 · stop 229.51 (1.2×ATR) · mål 241.21 (2×ATR, R/R 1.67) · max 10 dagar
+4. Swedbank         410.70 | RS3m   10.6 | 1m   10.0% | RSI   69 | %B  0.86 | ATR    1.8% | vol  1.1x | ↔20dH   -1.3%
+      plan(LONG): entry ~410.70 · stop 401.75 (1.2×ATR) · mål 425.61 (2×ATR, R/R 1.67) · max 10 dagar
+5. Getinge          242.90 | RS3m   19.7 | 1m   -1.0% | RSI   54 | %B  0.65 | ATR    1.6% | vol  0.9x | ↔20dH   -2.0%
+      plan(LONG): entry ~242.90 · stop 238.17 (1.2×ATR) · mål 250.79 (2×ATR, R/R 1.67) · max 10 dagar
+
+=== 2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt) ===
+    Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.
+1. Investor         411.45 | RS3m   -0.7 | 1m   -0.8% | RSI   57 | %B  0.82 | ATR    1.4% | vol  0.9x | ↔20dH   -1.5%
+      plan(LONG): entry ~411.45 · stop 404.63 (1.2×ATR) · mål 425.66 (2.5×ATR, R/R 2.08) · max 15 dagar
+2. Getinge          242.90 | RS3m   19.7 | 1m   -1.0% | RSI   54 | %B  0.65 | ATR    1.6% | vol  0.9x | ↔20dH   -2.0%
+      plan(LONG): entry ~242.90 · stop 238.17 (1.2×ATR) · mål 252.76 (2.5×ATR, R/R 2.08) · max 15 dagar
+3. Hexagon           98.40 | RS3m   19.9 | 1m   -3.3% | RSI   61 | %B  0.78 | ATR    1.9% | vol  0.8x | ↔20dH   -2.2%
+      plan(LONG): entry ~98.40 · stop 96.15 (1.2×ATR) · mål 103.09 (2.5×ATR, R/R 2.08) · max 15 dagar
+4. Nordea           201.60 | RS3m    6.9 | 1m    4.0% | RSI   63 | %B  0.80 | ATR    1.5% | vol  1.5x | ↔20dH   -1.1%
+      plan(LONG): entry ~201.60 · stop 198.00 (1.2×ATR) · mål 209.10 (2.5×ATR, R/R 2.08) · max 15 dagar
+
+=== 3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont) ===
+    RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.
+1. Evolution        816.00 | RS3m   19.8 | 1m   -1.8% | RSI   42 | %B  0.03 | ATR    2.4% | vol  0.8x | ↔20dH  -10.4%
+      plan(LONG): entry ~816.00 · stop 792.84 (1.2×ATR) · mål 844.95 (1.5×ATR, R/R 1.25) · max 5 dagar
+
+=== 4 · SVAGAST — undvik long / ev. short-idéer ===
+    Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.
+1. Electrolux        26.67 | RS3m  -15.9 | 1m   -5.1% | RSI   48 | %B  0.48 | ATR    2.9% | vol  0.8x | ↔20dH   -6.0%
+      plan(SHORT): entry ~26.67 · stop 27.61 (1.2×ATR) · mål 25.10 (2×ATR, R/R 1.67) · max 10 dagar
+2. Boliden          521.00 | RS3m   -7.6 | 1m   -8.1% | RSI   47 | %B  0.21 | ATR    3.9% | vol  0.6x | ↔20dH  -11.4%
+      plan(SHORT): entry ~521.00 · stop 545.31 (1.2×ATR) · mål 480.49 (2×ATR, R/R 1.67) · max 10 dagar
+3. Essity           258.90 | RS3m   -8.5 | 1m   -7.5% | RSI   37 | %B  0.18 | ATR    1.5% | vol  1.0x | ↔20dH   -8.5%
+      plan(SHORT): entry ~258.90 · stop 263.64 (1.2×ATR) · mål 251.01 (2×ATR, R/R 1.67) · max 10 dagar
+
+(Loggade 13 kandidater till candidates-log.csv — fyll på utfall själv för Oraklet-mätning senare.)
+
+─────────────────────────────────────────────────────────────
+DIN DEL AV JOBBET:
+ 1. Kontrollera rapport-flagga (⚠) och gap — ta inte position dagen före rapport.
+ 2. Ta alla kvalificerade inom bucket. Ingen kvalificerad = ingen trade. Det är disciplin, inte passivitet.
+ 3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
+    (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
+ 4. LOGGA varje trade (setup, val, utfall). Efter 20–30 trades: kör vinst-
+    andel + payoff genom Monte Carlo-Oraklet = då VET du om edgen finns.
+Urvalsverktyg, inte rådgivning. Beslut och risk är dina.
+─────────────────────────────────────────────────────────────
