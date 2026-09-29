@@ -84,6 +84,10 @@ function retAt(closes, i, days) {
   return closes[i] / closes[i - days] - 1;
 }
 
+function dayKey(ts) {
+  return new Date(ts * 1000).toISOString().slice(0, 10);
+}
+
 /* ---------------- exit-regler ----------------
    Var och en tar (bars, entryIndex) och returnerar utfallet i R,
    där 1R = stop-avståndet (1.2×ATR vid entry). Entry sker på
@@ -117,7 +121,7 @@ function makeExits() {
       if (sma10 && bars[k].c < sma10) return (bars[k].c - entry) / stopDist - COMMISSION_PCT / 100 * entry / stopDist;
     }
     const last = bars[Math.min(e + 29, bars.length - 1)].c;
-    return (last - entry) / stopDist;
+    return (last - entry) / stopDist - COMMISSION_PCT / 100 * entry / stopDist;
   };
   return {
     'håll 1 dag': fixed(1), 'håll 2 dgr': fixed(2), 'håll 3 dgr': fixed(3),
@@ -174,8 +178,11 @@ async function main() {
     const ranked = [];
     for (const t in data) {
       const bars = data[t];
-      // hitta motsvarande bar-index i bolagets serie (närmaste datum)
-      let j = bars.findIndex(b => b.t >= idxBars[i].t);
+      // Use the exact same trading date as the index signal. "First bar >= date"
+      // can silently jump to a future bar when a stock is missing a session,
+      // which would leak future information into the ranking.
+      const signalDate = dayKey(idxBars[i].t);
+      const j = bars.findIndex(b => dayKey(b.t) === signalDate);
       if (j < 64 || j >= bars.length - 11) continue;
       const closes = bars.map(b => b.c);
       const rs = retAt(closes, j, 63) - idxR63;
@@ -239,7 +246,8 @@ SÅ SVARAR DETTA PÅ "HUR LÄNGE SKA JAG HÅLLA":
  • "trail < SMA10" låter vinnare löpa men skär förlorare → ofta bästa
    kompromissen om förväntan håller och drawdown är rimlig.
 ÄRLIG VARNING: detta är historik med förenklingar (stängningskurser,
-schablon-courtage). En regel som FALLER här ska du inte handla. En som
+schablon-courtage och dagens statiska OMXS30-universum, vilket ger
+survivorship-bias bakåt i tiden). En regel som FALLER här ska du inte handla. En som
 klarar sig är lovande — bekräfta sen live i smått via evaluate.js.
 ─────────────────────────────────────────────────────────────`);
   if (fails) console.log(`(${fails} bolag kunde inte hämtas — resultatet är något ofullständigt.)`);
