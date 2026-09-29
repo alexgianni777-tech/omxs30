@@ -97,14 +97,17 @@ async function importDashboard(text) {
       } catch (e) {
         // Do not send partial plans or import failed output to the dashboard.
         const details = String(e.stderr || e.message || 'Okänt fel').trim().slice(0, 600);
-        const alert = '⚠️ OMXS30-SCREENER STOPPAD — ' + date +
-          '\nIngen handelslista eller dashboard-import skickades. Kontrollera dagskurserna.\n' + details;
-        console.error(alert);
-        if (process.env.RETRY === '1' && details.includes('DATA_NOT_READY:')) {
-          console.log('Dagskurser saknas ännu; återförsök senare.');
+        // Yahoo may publish the completed daily bars hours after a scheduled run,
+        // and GitHub can start even the primary schedule late. All scheduled runs
+        // wait quietly for incomplete data; only the final retry raises an alert.
+        if (isScreener && details.includes('DATA_NOT_READY:')) {
+          console.log('Dagskurser saknas ännu för ' + date + '; återförsök senare. ' + details);
           process.exitCode = 75;
           return;
         }
+        const alert = '⚠️ OMXS30-SCREENER STOPPAD — ' + date +
+          '\nIngen handelslista eller dashboard-import skickades. Kontrollera dagskurserna.\n' + details;
+        console.error(alert);
         try {
           if (process.env.RETRY !== '1') await sendTelegram(alert);
         } catch (telegramError) {
