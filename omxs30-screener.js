@@ -305,7 +305,8 @@ function plan(r, dir = 'LONG', bucket = 'MOMENTUM') {
     const shares = Math.floor(RISK_PER_TRADE_SEK / stopDist);
     size = ` · storlek ~${shares} st (~${(shares * entry).toFixed(0)} kr exponering vid ${RISK_PER_TRADE_SEK} kr risk)`;
   }
-  return `      plan(${dir}): entry ~${entry.toFixed(2)} · stop ${stop.toFixed(2)} (1.2×ATR) · mål ${target.toFixed(2)} (${targetMult}×ATR, R/R ${rr}) · max ${holdDays} dagar${size}`;
+  const oneR = dir === 'LONG' ? entry + stopDist : entry - stopDist;
+  return `      plan(${dir}): entry ~${entry.toFixed(2)} · stop ${stop.toFixed(2)} (1.2×ATR) · mål ${target.toFixed(2)} (R/R ${rr}) · 1R ${oneR.toFixed(2)} · måltyp ${targetMult}×ATR · max ${holdDays} dagar${size}`;
 }
 
 /* ------------------------- print ------------------------- */
@@ -339,7 +340,7 @@ const { chooseCommonDataDate, ymd } = require('./data-date');
 
 async function main() {
   const dateStr = process.env.REPORT_DATE || reportDate();
-  console.log(`\nOMXS30 SCREENER · rapportdag ${dateStr}`);
+  console.log(`\nOMXS30 SCREENER · ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
 
   // Fetch all series first, then force every ranking onto one common session.
