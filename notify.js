@@ -127,11 +127,7 @@ async function importDashboard(text) {
       if (isScreener && !(await importDashboard(text))) {
         fs.mkdirSync('dashboard-pending', { recursive: true });
         fs.writeFileSync(pendingPath, 'Telegram levererat; dashboard-import väntar.\n');
-        try {
-          await sendTelegram('⚠️ Telegram-listan skickades, men dashboard-importen misslyckades. GitHub försöker igen utan att skicka listan på nytt.');
-        } catch (error) {
-          console.error('Kunde inte meddela om dashboard-fel:', error.message);
-        }
+        console.error('Dashboard-import misslyckades; GitHub retryar i bakgrunden utan extra Telegram-varning.');
       }
       console.log('Klart:', script);
     })().catch(error => {
