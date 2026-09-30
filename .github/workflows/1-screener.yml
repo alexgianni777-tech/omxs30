@@ -1,8 +1,6 @@
 name: 1 · Daglig screener
 
 on:
-  push:
-    branches: [main]
   schedule:
     - cron: '15 22 * * 1-5'
       timezone: 'Europe/Stockholm'
