@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
+
       - name: Välj handelsdag och kontrollera om listan redan skickats
         id: report
         env:
@@ -43,8 +44,10 @@ jobs:
           else
             REPORT_DATE=$(node report-date.js)
           fi
+
           echo "REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
           echo "Rapportdatum: $REPORT_DATE"
+
           if [ -f "sent-reports/$REPORT_DATE" ]; then
             if [ -f "dashboard-pending/$REPORT_DATE" ]; then
               echo "dashboard_only=true" >> "$GITHUB_OUTPUT"
@@ -54,7 +57,8 @@ jobs:
               echo "Redan skickad; hoppar över utskick."
             fi
           fi
-      - name: Kör screener → Telegram + Dashboard
+
+      - name: Kör screener → Telegram + Dashboard med egna data-retries
         id: send
         if: steps.report.outputs.already != 'true'
         env:
@@ -64,21 +68,78 @@ jobs:
           DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
           DASHBOARD_IMPORT_SECRET: ${{ secrets.DASHBOARD_IMPORT_SECRET }}
         run: |
-          set +e
-          node notify.js omxs30-screener.js
-          status=$?
-          set -e
-          if [ "$status" -eq 75 ] || [ "$status" -eq 76 ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            if [ "$status" -eq 75 ]; then
-              echo "waiting=data" >> "$GITHUB_OUTPUT"
-              echo "Dagskurser saknas; väntar på nästa omförsök."
-            else
-              echo "Dashboard-import saknas ännu; väntar på nästa omförsök."
-            fi
-            exit 0
+          max_attempts=1
+          retry_sleep=0
+
+          # Schemalagda återförsök ska inte vara beroende av att GitHub startar
+          # nästa cron exakt i tid. En körning provar själv var 20:e minut.
+          if [ "${RETRY:-}" = '1' ]; then
+            max_attempts=8
+            retry_sleep=1200
           fi
-          exit "$status"
+
+          attempt=1
+          while [ "$attempt" -le "$max_attempts" ]; do
+            echo "Screenerförsök $attempt/$max_attempts för $REPORT_DATE"
+
+            set +e
+            node notify.js omxs30-screener.js
+            status=$?
+            set -e
+
+            if [ "$status" -eq 0 ]; then
+              echo "ready=true" >> "$GITHUB_OUTPUT"
+              echo "waiting=none" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            if [ "$status" -eq 76 ]; then
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              echo "waiting=dashboard" >> "$GITHUB_OUTPUT"
+              echo "Telegram är redan levererat; dashboard-import väntar."
+              exit 0
+            fi
+
+            if [ "$status" -ne 75 ]; then
+              exit "$status"
+            fi
+
+            echo "Yahoo-dagskurser saknas ännu för $REPORT_DATE."
+
+            # Ett enda informationsmeddelande per rapportdag. Markeringen sparas
+            # efter steget så senare cron-körningar inte skickar samma status igen.
+            if [ "${RETRY:-}" = '1' ] && [ ! -f "waiting-report-alerts/$REPORT_DATE" ]; then
+              if node alert-waiting.js "$REPORT_DATE"; then
+                mkdir -p waiting-report-alerts
+                printf 'Väntestatus skickad %s\n' "$(date -u +%FT%TZ)" > "waiting-report-alerts/$REPORT_DATE"
+                echo "wait_notice=true" >> "$GITHUB_OUTPUT"
+              else
+                echo "Kunde inte skicka väntestatus; fortsätter data-retries ändå."
+              fi
+            fi
+
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              echo "waiting=data" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "Försöker igen om 20 minuter."
+            sleep "$retry_sleep"
+            attempt=$((attempt + 1))
+          done
+
+      - name: Spara väntestatus om rapporten ännu saknas
+        if: steps.send.outputs.wait_notice == 'true' && steps.send.outputs.ready == 'false'
+        run: |
+          git config user.name "omxs30-bot"
+          git config user.email "actions@github.com"
+          git add "waiting-report-alerts/$REPORT_DATE"
+          git commit -m "Markera väntande screener $REPORT_DATE"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
       - name: Meddela om dagsrapport fortfarande saknas efter sista försöket
         if: steps.send.outputs.waiting == 'data'
         env:
@@ -89,6 +150,7 @@ jobs:
           if [ "${RETRY:-}" != '1' ] || [ "$hour" -lt 18 ] || [ -f "missing-report-alerts/$REPORT_DATE" ]; then
             exit 0
           fi
+
           node alert-unavailable.js "$REPORT_DATE"
           mkdir -p missing-report-alerts
           printf 'Saknad rapport meddelad %s\n' "$(date -u +%FT%TZ)" > "missing-report-alerts/$REPORT_DATE"
@@ -99,6 +161,7 @@ jobs:
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
+
       - name: Spara skickad handelsdag och leveransstatus
         if: steps.report.outputs.already != 'true' && steps.send.outputs.ready != 'false'
         env:
@@ -106,6 +169,7 @@ jobs:
         run: |
           git config user.name "omxs30-bot"
           git config user.email "actions@github.com"
+
           if [ "$DASHBOARD_ONLY" = 'true' ]; then
             git add -u -- "dashboard-pending/$REPORT_DATE"
           else
@@ -115,11 +179,16 @@ jobs:
             if [ -f "dashboard-pending/$REPORT_DATE" ]; then
               git add -- "dashboard-pending/$REPORT_DATE"
             fi
+            if [ -f "waiting-report-alerts/$REPORT_DATE" ]; then
+              git add -- "waiting-report-alerts/$REPORT_DATE"
+            fi
           fi
+
           if git diff --cached --quiet; then
             echo "Ingen leveransstatus att uppdatera."
             exit 0
           fi
+
           git commit -m "Uppdatera screener-leverans $REPORT_DATE"
           git fetch origin main
           git rebase origin/main
