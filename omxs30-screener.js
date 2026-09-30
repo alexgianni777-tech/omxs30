@@ -335,64 +335,79 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
 
 /* -------------------------- main -------------------------- */
 const reportDate = require('./report-date');
+const { chooseCommonDataDate, ymd } = require('./data-date');
 
 async function main() {
   const dateStr = process.env.REPORT_DATE || reportDate();
-  console.log(`\nOMXS30 SCREENER · ${dateStr}`);
+  console.log(`\nOMXS30 SCREENER · rapportdag ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
 
-  const staleTickers = [];   // namn (senaste datum) på tickers med gammal data
+  // Fetch all series first, then force every ranking onto one common session.
+  // A one-session lag is allowed by design; older data is still blocked.
+  let indexBars;
+  const stockBars = new Map();
+  const failed = [];
 
-  // 0) Index — marknadsvädret
-  let idx;
   try {
-    const ib = (await fetchDaily(INDEX_TICKER)).filter(b => new Date(b.t * 1000).toISOString().slice(0, 10) <= dateStr);
-    if (!ib.length) throw new Error('Ingen indexstapel på eller före rapportdatum');
-    // This report runs after the Swedish close; yesterday's bar is not current.
-    const indexBarDate = new Date(ib[ib.length - 1].t * 1000).toISOString().slice(0, 10);
-    if (indexBarDate !== dateStr) {
-      throw new Error(`^OMX senaste kursstapel ${indexBarDate}, kräver ${dateStr}`);
-    }
-    const ic = ib.map(b => b.c);
-    idx = {
-      c: last(ic), r5: ret(ic, 5), r21: ret(ic, 21), r63: ret(ic, 63),
-      rsi: rsi14(ic), above50: last(ic) > sma(ic, 50), above200: last(ic) > sma(ic, 200),
-    };
+    indexBars = (await fetchDaily(INDEX_TICKER)).filter(b => ymd(b.t) <= dateStr);
   } catch (e) {
-    // Without current OMXS30 data the weather and relative-strength ranks are unsafe.
-    throw new Error(`DATA_NOT_READY: Ingen färsk OMXS30-indexdata för ${dateStr}: ${e.message}`);
+    throw new Error(`DATA_NOT_READY: Kunde inte hämta OMXS30-index: ${e.message}`);
   }
 
-  // 1) Bolagen
-  const rows = [], failed = [];
-  for (const [ticker, name] of TICKERS) {
+  for (const [ticker] of TICKERS) {
     try {
-      const bars = (await fetchDaily(ticker)).filter(b => new Date(b.t * 1000).toISOString().slice(0, 10) <= dateStr);
-      const lastDate = bars.length ? new Date(bars[bars.length - 1].t * 1000).toISOString().slice(0, 10) : 'saknas';
-      if (lastDate !== dateStr) {
-        staleTickers.push(`${name} (${lastDate})`);
-        process.stdout.write('!');
-        continue;
-      }
-      rows.push(analyse(name, ticker, bars, idx));
+      stockBars.set(ticker, (await fetchDaily(ticker)).filter(b => ymd(b.t) <= dateStr));
       process.stdout.write('.');
-    } catch (e) { failed.push(`${ticker} (${e.message})`); process.stdout.write('x'); }
+    } catch (e) {
+      failed.push(`${ticker} (${e.message})`);
+      process.stdout.write('x');
+    }
     await new Promise(res => setTimeout(res, 250));
   }
   console.log('\n');
-  const missing = [...staleTickers, ...failed];
-  if (missing.length) {
-    throw new Error(`${failed.length ? '' : 'DATA_NOT_READY: '}Saknar kompletta dagskurser för ${dateStr}: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ` … +${missing.length - 8} till` : ''}. Ingen screening skickas.`);
+
+  if (failed.length) {
+    throw new Error(`Saknar prisserier: ${failed.slice(0, 8).join(', ')}${failed.length > 8 ? ` … +${failed.length - 8} till` : ''}. Ingen screening skickas.`);
   }
 
-  // FÄRSKHETSVARNING — skrivs FÖRE allt annat så den inte kan missas
-  if (staleTickers.length) {
-    console.log('⚠⚠⚠ VARNING: GAMMAL DATA ⚠⚠⚠');
-    console.log(`${staleTickers.length} av ${TICKERS.length + 1} tickers har äldre data än senaste handelsdag.`);
-    console.log('Siffror, nivåer och trade-planer nedan kan vara INAKTUELLA — lita inte på dagens ark.');
-    console.log(`Berörda: ${staleTickers.slice(0, 8).join(', ')}${staleTickers.length > 8 ? ` … +${staleTickers.length - 8} till` : ''}`);
-    console.log('(Kör om manuellt senare på dagen, eller verifiera kurserna direkt i Avanza.)');
+  let dataDate, delayed;
+  try {
+    ({ dataDate, delayed } = chooseCommonDataDate(
+      dateStr,
+      [indexBars, ...TICKERS.map(([ticker]) => stockBars.get(ticker))],
+    ));
+  } catch (e) {
+    const latest = [
+      `^OMX (${indexBars.length ? ymd(indexBars[indexBars.length - 1].t) : 'saknas'})`,
+      ...TICKERS.map(([ticker, name]) => {
+        const bars = stockBars.get(ticker) || [];
+        return `${name} (${bars.length ? ymd(bars[bars.length - 1].t) : 'saknas'})`;
+      }),
+    ];
+    throw new Error(`DATA_NOT_READY: ${e.message} för rapportdag ${dateStr}: ${latest.slice(0, 8).join(', ')} …`);
+  }
+
+  if (delayed) {
+    console.log('⚠⚠⚠ EN HANDELSDAGS FÖRDRÖJNING ⚠⚠⚠');
+    console.log(`Rapportdag: ${dateStr} · all ranking/entry/stop/mål använder gemensam stängningsdata från ${dataDate}.`);
+    console.log('Detta är avsiktligt tillåtet. Jämför nivåerna mot aktuell kurs innan du tar en trade.');
+    console.log('Ingen serie blandas med nyare data; hela screeningen använder samma datadag.');
     console.log('─────────────────────────────────────────────────────────────');
+  } else {
+    console.log(`Kursdata: ${dataDate} (färsk för rapportdagen)`);
+  }
+
+  const ib = indexBars.filter(b => ymd(b.t) <= dataDate);
+  const ic = ib.map(b => b.c);
+  const idx = {
+    c: last(ic), r5: ret(ic, 5), r21: ret(ic, 21), r63: ret(ic, 63),
+    rsi: rsi14(ic), above50: last(ic) > sma(ic, 50), above200: last(ic) > sma(ic, 200),
+  };
+
+  const rows = [];
+  for (const [ticker, name] of TICKERS) {
+    const bars = stockBars.get(ticker).filter(b => ymd(b.t) <= dataDate);
+    rows.push(analyse(name, ticker, bars, idx));
   }
 
   // Marknadsväder
@@ -442,8 +457,7 @@ async function main() {
 
   logCandidates(dateStr, { momentum, squeeze, bounce, weakest });
 
-  if (failed.length) console.log(`\nMisslyckade tickers: ${failed.join(', ')}`);
-  if (staleTickers.length) console.log(`\n⚠ Påminnelse: ${staleTickers.length} tickers hade GAMMAL DATA — se varningen överst.`);
+  if (delayed) console.log(`\n⚠ Påminnelse: kandidatnivåerna bygger på ${dataDate}; jämför mot aktuell kurs.`);
 
   console.log(`
 ─────────────────────────────────────────────────────────────
