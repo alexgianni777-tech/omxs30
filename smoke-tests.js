@@ -46,3 +46,23 @@ assert.throws(
   () => chooseCommonDataDate('2026-09-29', [bars('2026-09-27'), bars('2026-09-27')]),
   /högst en handelsdags/,
 );
+
+
+const dashboardDateRegex = /SCREENER\s*[·•]\s*(\d{4}-\d{2}-\d{2})/;
+const dashboardPlanRegex = /plan\((LONG|SHORT)\):\s*entry\s*~?([\d.]+)\s*·\s*stop\s+([\d.]+).*·\s*mål.*?([\d.]+)\s*\(R\/R\s+([\d.]+)\)\s*·\s*1R\s+([\d.]+)/;
+
+assert.strictEqual(
+  'OMXS30 SCREENER · 2026-09-30'.match(dashboardDateRegex)?.[1],
+  '2026-09-30',
+);
+
+const compatiblePlan =
+  'plan(LONG): entry ~45.17 · stop 44.00 (1.2×ATR) · mål 47.12 (R/R 1.67) · 1R 46.34 · måltyp 2×ATR · max 10 dagar';
+const planMatch = compatiblePlan.match(dashboardPlanRegex);
+assert.ok(planMatch);
+assert.strictEqual(planMatch[1], 'LONG');
+assert.strictEqual(planMatch[2], '45.17');
+assert.strictEqual(planMatch[3], '44.00');
+assert.strictEqual(planMatch[4], '47.12');
+assert.strictEqual(planMatch[5], '1.67');
+assert.strictEqual(planMatch[6], '46.34');
