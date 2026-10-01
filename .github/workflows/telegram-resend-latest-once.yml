@@ -1,0 +1,57 @@
+name: Telegram resend latest once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-resend-latest-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  resend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Resend saved OMXS30 report and verify Telegram response
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const token = process.env.TELEGRAM_TOKEN;
+          const chatId = process.env.TELEGRAM_CHAT_ID;
+          if (!token || !chatId) throw new Error('Missing Telegram secrets');
+
+          const date = '2026-09-30';
+          const report = fs.readFileSync('report-outputs/' + date + '.txt', 'utf8');
+          const full = '📊 OMXS30 SCREENER · ' + date + '\n' + report;
+          const chunks = [];
+          for (let i = 0; i < full.length; i += 3500) chunks.push(full.slice(i, i + 3500));
+
+          (async () => {
+            for (let i = 0; i < chunks.length; i++) {
+              const res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: chunks[i] }),
+              });
+              const body = await res.json().catch(() => null);
+              if (!res.ok || !body?.ok) {
+                throw new Error('Telegram rejected chunk ' + (i + 1) + ': HTTP ' + res.status +
+                  ' error=' + (body?.description || 'unknown'));
+              }
+              console.log('Telegram accepted chunk ' + (i + 1) + '/' + chunks.length +
+                ', message_id=' + body.result.message_id);
+              await new Promise(r => setTimeout(r, 500));
+            }
+          })().catch(err => {
+            console.error(err.message);
+            process.exit(1);
+          });
+          NODE
