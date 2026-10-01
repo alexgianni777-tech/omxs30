@@ -40,7 +40,13 @@ async function sendTelegram(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: CHAT_ID, text: '```\n' + chunk + '\n```', parse_mode: 'Markdown' }),
     });
-    if (!res.ok) throw new Error('Telegram HTTP ' + res.status);
+    let body = null;
+    try { body = await res.json(); } catch {}
+    if (!res.ok || !body?.ok) {
+      throw new Error('Telegram rejected message: HTTP ' + res.status +
+        ' ' + (body?.description || 'unknown error'));
+    }
+    console.log('Telegram accepted message_id=' + body.result.message_id);
     await new Promise(r => setTimeout(r, 400));
   }
 }
@@ -60,7 +66,8 @@ async function importDashboard(text) {
           body: JSON.stringify({ text }),
         });
         if (!res.ok) {
-          console.error('Dashboard-import HTTP ' + res.status);
+          const body = (await res.text().catch(() => '')).slice(0, 500);
+          console.error('Dashboard-import HTTP ' + res.status + (body ? ' · ' + body : ''));
           return false;
         }
         const result = await res.json();
