@@ -1,0 +1,64 @@
+OMXS30 SCREENER · 2026-10-02
+Hämtar index + 30 bolag 
+..............................
+
+⚠⚠⚠ EN HANDELSDAGS FÖRDRÖJNING ⚠⚠⚠
+Rapportdag: 2026-10-02 · all ranking/entry/stop/mål använder gemensam stängningsdata från 2026-10-01.
+Detta är avsiktligt tillåtet. Jämför nivåerna mot aktuell kurs innan du tar en trade.
+Ingen serie blandas med nyare data; hela screeningen använder samma datadag.
+─────────────────────────────────────────────────────────────
+MARKNADSVÄDER  OMXS30 3226.6 | 5d   -1.4% | 1m   -0.6% | 3m   -0.3% | RSI  42
+               → MOTVIND (index under SMA50 — long kräver extra starkt case, studsar opålitliga)
+
+=== 1 · MOMENTUM — relativ styrka mot index (fortsättnings-long) ===
+    Starkast i flocken, i trend, ej överköpt. Bäst i medvind.
+1. NIBE              44.71 | RS3m   25.6 | 1m    4.0% | RSI   58 | %B  0.60 | ATR    2.2% | vol  1.1x | ↔20dH   -3.3%
+      plan(LONG): entry ~44.71 · stop 43.52 (1.2×ATR) · mål 46.69 (R/R 1.67) · 1R 45.90 · måltyp 2×ATR · max 10 dagar
+2. SCA              119.70 | RS3m   22.6 | 1m    3.5% | RSI   55 | %B  0.46 | ATR    1.9% | vol  0.7x | ↔20dH   -5.7%
+      plan(LONG): entry ~119.70 · stop 117.01 (1.2×ATR) · mål 124.18 (R/R 1.67) · 1R 122.39 · måltyp 2×ATR · max 10 dagar
+3. Hexagon           99.02 | RS3m   21.7 | 1m    1.9% | RSI   53 | %B  0.86 | ATR    2.0% | vol  1.1x | ↔20dH   -0.9%
+      plan(LONG): entry ~99.02 · stop 96.63 (1.2×ATR) · mål 103.01 (R/R 1.67) · 1R 101.41 · måltyp 2×ATR · max 10 dagar
+4. Getinge          247.20 | RS3m   20.3 | 1m    0.9% | RSI   55 | %B  0.80 | ATR    1.8% | vol  0.6x | ↔20dH   -1.7%
+      plan(LONG): entry ~247.20 · stop 241.97 (1.2×ATR) · mål 255.91 (R/R 1.67) · 1R 252.43 · måltyp 2×ATR · max 10 dagar
+5. SEB              229.20 | RS3m   15.5 | 1m    2.7% | RSI   54 | %B  0.44 | ATR    1.8% | vol  1.2x | ↔20dH   -3.9%
+      plan(LONG): entry ~229.20 · stop 224.23 (1.2×ATR) · mål 237.49 (R/R 1.67) · 1R 234.17 · måltyp 2×ATR · max 10 dagar
+
+=== 2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt) ===
+    Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.
+1. Saab             623.20 | RS3m    6.3 | 1m    2.2% | RSI   51 | %B  0.78 | ATR    2.8% | vol  1.5x | ↔20dH   -2.3%
+      plan(LONG): entry ~623.20 · stop 602.23 (1.2×ATR) · mål 666.88 (R/R 2.08) · 1R 644.17 · måltyp 2.5×ATR · max 15 dagar
+2. Hexagon           99.02 | RS3m   21.7 | 1m    1.9% | RSI   53 | %B  0.86 | ATR    2.0% | vol  1.1x | ↔20dH   -0.9%
+      plan(LONG): entry ~99.02 · stop 96.63 (1.2×ATR) · mål 104.01 (R/R 2.08) · 1R 101.41 · måltyp 2.5×ATR · max 15 dagar
+
+=== 3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont) ===
+    RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.
+1. Nordea           192.20 | RS3m    2.5 | 1m   -1.8% | RSI   40 | %B -0.29 | ATR    1.8% | vol  1.6x | ↔20dH   -6.2%
+      plan(LONG): entry ~192.20 · stop 187.99 (1.2×ATR) · mål 197.46 (R/R 1.25) · 1R 196.41 · måltyp 1.5×ATR · max 5 dagar
+2. SSAB              97.86 | RS3m    4.0 | 1m   -3.0% | RSI   38 | %B -0.18 | ATR    3.1% | vol  2.1x | ↔20dH  -10.3%
+      plan(LONG): entry ~97.86 · stop 94.21 (1.2×ATR) · mål 102.42 (R/R 1.25) · 1R 101.51 · måltyp 1.5×ATR · max 5 dagar
+3. Evolution        791.80 | RS3m   20.4 | 1m   -4.5% | RSI   34 | %B  0.09 | ATR    2.8% | vol  0.6x | ↔20dH  -13.1%
+      plan(LONG): entry ~791.80 · stop 765.40 (1.2×ATR) · mål 824.80 (R/R 1.25) · 1R 818.20 · måltyp 1.5×ATR · max 5 dagar
+
+=== 4 · SVAGAST — undvik long / ev. short-idéer ===
+    Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.
+1. Ericsson          91.56 | RS3m  -13.5 | 1m   -5.3% | RSI   34 | %B  0.03 | ATR    2.6% | vol  1.2x | ↔20dH  -10.4%
+      plan(SHORT): entry ~91.56 · stop 94.43 (1.2×ATR) · mål 86.78 (R/R 1.67) · 1R 88.69 · måltyp 2×ATR · max 10 dagar
+2. Electrolux        25.23 | RS3m   -8.1 | 1m   -6.8% | RSI   36 | %B  0.03 | ATR    3.3% | vol  1.6x | ↔20dH   -9.7%
+      plan(SHORT): entry ~25.23 · stop 26.22 (1.2×ATR) · mål 23.58 (R/R 1.67) · 1R 24.24 · måltyp 2×ATR · max 10 dagar
+3. Boliden          501.00 | RS3m   -5.6 | 1m   -7.7% | RSI   36 | %B  0.12 | ATR    3.6% | vol  0.9x | ↔20dH  -14.8%
+      plan(SHORT): entry ~501.00 · stop 522.36 (1.2×ATR) · mål 465.40 (R/R 1.67) · 1R 479.64 · måltyp 2×ATR · max 10 dagar
+
+(Loggade 13 kandidater till candidates-log.csv — fyll på utfall själv för Oraklet-mätning senare.)
+
+⚠ Påminnelse: kandidatnivåerna bygger på 2026-10-01; jämför mot aktuell kurs.
+
+─────────────────────────────────────────────────────────────
+DIN DEL AV JOBBET:
+ 1. Kontrollera rapport-flagga (⚠) och gap — ta inte position dagen före rapport.
+ 2. Ta alla kvalificerade inom bucket. Ingen kvalificerad = ingen trade. Det är disciplin, inte passivitet.
+ 3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
+    (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
+ 4. LOGGA varje trade (setup, val, utfall). Efter 20–30 trades: kör vinst-
+    andel + payoff genom Monte Carlo-Oraklet = då VET du om edgen finns.
+Urvalsverktyg, inte rådgivning. Beslut och risk är dina.
+─────────────────────────────────────────────────────────────
