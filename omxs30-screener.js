@@ -87,6 +87,48 @@ function tradingDaysBehind(lastBarDate) {
   return Math.max(0, count - 1);
 }
 
+function expectedDataDate() {
+  const report = process.env.REPORT_DATE;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(report || '')) return null;
+  const d = new Date(report + 'T00:00:00Z');
+  do d.setUTCDate(d.getUTCDate() - 1);
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6);
+  return d.toISOString().slice(0, 10);
+}
+
+async function reconstructDailyFromIntraday(ticker, targetDate) {
+  const hosts = ['query2.finance.yahoo.com', 'query1.finance.yahoo.com'];
+  let lastErr;
+  for (const host of hosts) {
+    try {
+      const url = `https://${host}/v8/finance/chart/${encodeURIComponent(ticker)}?range=5d&interval=5m&includePrePost=false&events=div%2Csplits`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const j = await res.json();
+      const r = j?.chart?.result?.[0], q = r?.indicators?.quote?.[0];
+      if (!r?.timestamp || !q) throw new Error('no intraday data');
+      const rows = [];
+      for (let i = 0; i < r.timestamp.length; i++) {
+        const date = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Europe/Stockholm', year: 'numeric', month: '2-digit', day: '2-digit'
+        }).format(new Date(r.timestamp[i] * 1000));
+        if (date !== targetDate || q.close[i] == null) continue;
+        rows.push({ o:q.open[i], h:q.high[i], l:q.low[i], c:q.close[i], v:q.volume[i] ?? 0 });
+      }
+      if (!rows.length) throw new Error(`no intraday rows for ${targetDate}`);
+      return {
+        t: Math.floor(Date.parse(targetDate + 'T12:00:00Z') / 1000),
+        o: rows.find(x => x.o != null)?.o,
+        h: Math.max(...rows.map(x => x.h).filter(Number.isFinite)),
+        l: Math.min(...rows.map(x => x.l).filter(Number.isFinite)),
+        c: [...rows].reverse().find(x => x.c != null)?.c,
+        v: rows.reduce((s,x) => s + (Number.isFinite(x.v) ? x.v : 0), 0),
+      };
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('intraday reconstruction failed');
+}
+
 async function fetchDaily(ticker, days = 400, tries = 3) {
   const to = Math.floor(Date.now() / 1000);
   const from = to - days * 86400;
@@ -110,6 +152,16 @@ async function fetchDaily(ticker, days = 400, tries = 3) {
         bars.push({ t: r.timestamp[i], o: q.open[i], h: q.high[i], l: q.low[i], c: q.close[i], v: q.volume[i] ?? 0 });
       }
       if (bars.length < 220) throw new Error(`only ${bars.length} bars`);
+
+      // Yahoo can lag on Stockholm 1d bars even when intraday is complete.
+      // Repair ONLY the exact D-1 session required by this report from 5m bars.
+      const targetDate = expectedDataDate();
+      if (targetDate && !bars.some(b => new Date(b.t * 1000).toISOString().slice(0,10) === targetDate)) {
+        const repaired = await reconstructDailyFromIntraday(ticker, targetDate);
+        bars.push(repaired);
+        bars.sort((a,b) => a.t - b.t);
+        console.log(`REPAIRED_INTRADAY ${ticker} ${targetDate} O=${repaired.o} H=${repaired.h} L=${repaired.l} C=${repaired.c} V=${repaired.v}`);
+      }
 
       // --- FÄRSKHETSVAKT ---
       // Cachad/gammal serie? Behandla som fel → retry roterar till andra värden.
