@@ -343,7 +343,7 @@ async function main() {
   console.log(`\nOMXS30 SCREENER · ${dateStr}`);
   console.log('Hämtar index + 30 bolag', '');
 
-  // Fetch all series first, then force every ranking onto the exact previous common session.
+  // Fetch all series first, then force every ranking onto the exact previous common session. Yahoo history may publish later than quotes.
   // A one-session lag is allowed by design; older data is still blocked.
   let indexBars;
   const stockBars = new Map();
