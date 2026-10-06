@@ -4,22 +4,22 @@ const assert = require('assert');
 const reportDate = require('./report-date');
 const { chooseCommonDataDate, previousWeekday } = require('./data-date');
 
-// Monday morning Stockholm -> latest completed weekday is Friday.
+// Monday report stays Monday; data selection handles the Friday close.
 assert.strictEqual(
   reportDate(new Date('2026-09-28T08:00:00Z'), false),
-  '2026-09-25',
+  '2026-09-28',
 );
 
-// Monday evening after the configured cutoff -> Monday itself.
+// Monday evening is the same report day.
 assert.strictEqual(
   reportDate(new Date('2026-09-28T20:00:00Z'), false),
   '2026-09-28',
 );
 
-// Tuesday retry always targets the previous weekday.
+// Tuesday retry remains a Tuesday report; it must use Monday data.
 assert.strictEqual(
   reportDate(new Date('2026-09-29T08:00:00Z'), true),
-  '2026-09-28',
+  '2026-09-29',
 );
 
 console.log('OMXS30 smoke tests passed');
@@ -34,7 +34,7 @@ assert.strictEqual(previousWeekday('2026-09-28'), '2026-09-25');
 
 assert.deepStrictEqual(
   chooseCommonDataDate('2026-09-29', [bars('2026-09-28','2026-09-29'), bars('2026-09-28','2026-09-29')]),
-  { dataDate: '2026-09-29', delayed: false },
+  { dataDate: '2026-09-28', delayed: true },
 );
 
 assert.deepStrictEqual(
@@ -44,7 +44,7 @@ assert.deepStrictEqual(
 
 assert.throws(
   () => chooseCommonDataDate('2026-09-29', [bars('2026-09-27'), bars('2026-09-27')]),
-  /högst en handelsdags/,
+  /föregående handelsdag/,
 );
 
 
