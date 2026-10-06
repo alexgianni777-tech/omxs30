@@ -11,25 +11,21 @@ function previousWeekday(dateStr) {
   return d.toISOString().slice(0, 10);
 }
 
-// Pick one common session for every series. Prefer the requested report day.
-// If that is not available everywhere, allow exactly the previous weekday.
-// This avoids mixing current and stale bars in the same ranking.
+// Deliberate one-trading-day lag: report day D ALWAYS uses D-1 close.
+// Never silently upgrade to same-day data in an evening run, and never fall
+// back to D-2. Every series must contain the exact same target session.
 function chooseCommonDataDate(reportDate, seriesList) {
   if (!seriesList.length || seriesList.some(bars => !bars?.length)) {
     throw new Error('Saknar prisserie');
   }
 
+  const target = previousWeekday(reportDate);
   const hasDate = (bars, date) => bars.some(b => ymd(b.t) === date);
-  if (seriesList.every(bars => hasDate(bars, reportDate))) {
-    return { dataDate: reportDate, delayed: false };
+  if (seriesList.every(bars => hasDate(bars, target))) {
+    return { dataDate: target, delayed: true };
   }
 
-  const fallback = previousWeekday(reportDate);
-  if (seriesList.every(bars => hasDate(bars, fallback))) {
-    return { dataDate: fallback, delayed: true };
-  }
-
-  throw new Error('Ingen gemensam prisdag inom högst en handelsdags fördröjning');
+  throw new Error(`Saknar gemensam prisdag ${target} (föregående handelsdag)`);
 }
 
 module.exports = { chooseCommonDataDate, previousWeekday, ymd };
