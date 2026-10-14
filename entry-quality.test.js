@@ -1,0 +1,15 @@
+'use strict';
+const assert = require('node:assert/strict');
+const { evaluateEntry } = require('./entry-quality');
+const base = { side:'LONG', entry:100, stop:95, target:110, priceAsOf:'2026-10-08T09:00:00Z', now:'2026-10-08T09:05:00Z' };
+assert.equal(evaluateEntry({...base,currentPrice:100}).status,'READY');
+assert.equal(evaluateEntry({...base,currentPrice:108}).status,'MISSED_ENTRY');
+assert.equal(evaluateEntry({...base,currentPrice:94}).status,'PLAN_BROKEN');
+assert.equal(evaluateEntry({...base,currentPrice:111}).status,'PLAN_BROKEN');
+assert.equal(evaluateEntry({...base,currentPrice:100,priceAsOf:'2026-10-07T09:00:00Z'}).status,'STALE_PRICE');
+const short = {...base,side:'SHORT',entry:100,stop:105,target:90};
+assert.equal(evaluateEntry({...short,currentPrice:100}).status,'READY');
+assert.equal(evaluateEntry({...short,currentPrice:92}).status,'MISSED_ENTRY');
+assert.equal(evaluateEntry({...short,currentPrice:106}).status,'PLAN_BROKEN');
+assert.equal(evaluateEntry({...short,currentPrice:89}).status,'PLAN_BROKEN');
+console.log('entry-quality tests passed');
