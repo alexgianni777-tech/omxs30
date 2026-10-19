@@ -1,0 +1,60 @@
+OMXS30 SCREENER · 2026-10-19
+Hämtar index + 30 bolag 
+..............................
+
+⚠⚠⚠ EN HANDELSDAGS FÖRDRÖJNING ⚠⚠⚠
+Rapportdag: 2026-10-19 · all ranking/entry/stop/mål använder gemensam stängningsdata från 2026-10-16.
+Detta är avsiktligt tillåtet. Jämför nivåerna mot aktuell kurs innan du tar en trade.
+Ingen serie blandas med nyare data; hela screeningen använder samma datadag.
+─────────────────────────────────────────────────────────────
+MARKNADSVÄDER  OMXS30 3296.8 | 5d    1.2% | 1m    0.2% | 3m    4.8% | RSI  53
+               → MEDVIND (index över SMA50 & SMA200 — long-setups gynnade)
+
+=== 1 · MOMENTUM — relativ styrka mot index (fortsättnings-long) ===
+    Starkast i flocken, i trend, ej överköpt. Bäst i medvind.
+1. Hexagon          105.25 | RS3m   28.3 | 1m   10.4% | RSI   71 | %B  0.87 | ATR    2.2% | vol  0.8x | ↔20dH   -0.6%
+      plan(LONG): entry ~105.25 · stop 102.46 (1.2×ATR) · mål 109.91 (R/R 1.67) · 1R 108.04 · måltyp 2×ATR · max 10 dagar
+2. SCA              125.70 | RS3m   19.5 | 1m    3.9% | RSI   67 | %B  0.90 | ATR    1.8% | vol  0.9x | ↔20dH   -1.0%
+      plan(LONG): entry ~125.70 · stop 123.05 (1.2×ATR) · mål 130.12 (R/R 1.67) · 1R 128.35 · måltyp 2×ATR · max 10 dagar
+3. NIBE              44.72 | RS3m   18.4 | 1m    4.0% | RSI   52 | %B  0.51 | ATR    2.4% | vol  1.0x | ↔20dH   -3.2%
+      plan(LONG): entry ~44.72 · stop 43.43 (1.2×ATR) · mål 46.87 (R/R 1.67) · 1R 46.01 · måltyp 2×ATR · max 10 dagar
+4. Electrolux        27.60 | RS3m   17.9 | 1m    4.2% | RSI   60 | %B  0.95 | ATR    3.4% | vol  1.5x | ↔20dH   -0.3%
+      plan(LONG): entry ~27.60 · stop 26.49 (1.2×ATR) · mål 29.45 (R/R 1.67) · 1R 28.71 · måltyp 2×ATR · max 10 dagar
+5. Getinge          261.60 | RS3m    7.7 | 1m    9.6% | RSI   75 | %B  1.05 | ATR    1.8% | vol  0.8x | ↔20dH   -0.3%
+      plan(LONG): entry ~261.60 · stop 256.00 (1.2×ATR) · mål 270.93 (R/R 1.67) · 1R 267.20 · måltyp 2×ATR · max 10 dagar
+
+=== 2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt) ===
+    Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.
+1. Saab             650.20 | RS3m    8.1 | 1m    6.2% | RSI   66 | %B  1.11 | ATR    2.9% | vol  1.5x | ↔20dH   -0.7%
+      plan(LONG): entry ~650.20 · stop 627.56 (1.2×ATR) · mål 697.36 (R/R 2.08) · 1R 672.84 · måltyp 2.5×ATR · max 15 dagar
+2. Assa Abloy       359.50 | RS3m    1.0 | 1m    3.9% | RSI   58 | %B  0.83 | ATR    1.9% | vol  0.9x | ↔20dH   -0.7%
+      plan(LONG): entry ~359.50 · stop 351.39 (1.2×ATR) · mål 376.39 (R/R 2.08) · 1R 367.61 · måltyp 2.5×ATR · max 15 dagar
+
+=== 3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont) ===
+    RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.
+1. SEB              219.30 | RS3m   -3.2 | 1m   -4.9% | RSI   40 | %B  0.03 | ATR    2.3% | vol  0.9x | ↔20dH   -8.1%
+      plan(LONG): entry ~219.30 · stop 213.14 (1.2×ATR) · mål 227.00 (R/R 1.25) · 1R 225.46 · måltyp 1.5×ATR · max 5 dagar
+
+=== 4 · SVAGAST — undvik long / ev. short-idéer ===
+    Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.
+1. ABB              910.00 | RS3m  -10.3 | 1m   -4.0% | RSI   38 | %B -0.07 | ATR    2.7% | vol  1.7x | ↔20dH   -9.4%   ⚠ gap +2.6%
+      plan(SHORT): entry ~910.00 · stop 939.63 (1.2×ATR) · mål 860.61 (R/R 1.67) · 1R 880.37 · måltyp 2×ATR · max 10 dagar
+2. Volvo            325.40 | RS3m   -8.9 | 1m   -3.7% | RSI   48 | %B  0.70 | ATR    1.7% | vol  1.1x | ↔20dH   -3.1%
+      plan(SHORT): entry ~325.40 · stop 332.20 (1.2×ATR) · mål 314.07 (R/R 1.67) · 1R 318.60 · måltyp 2×ATR · max 10 dagar
+3. Tele2            160.20 | RS3m   -3.6 | 1m   -7.5% | RSI   46 | %B  0.46 | ATR    2.4% | vol  0.7x | ↔20dH   -6.4%
+      plan(SHORT): entry ~160.20 · stop 164.77 (1.2×ATR) · mål 152.59 (R/R 1.67) · 1R 155.63 · måltyp 2×ATR · max 10 dagar
+
+(Loggade 11 kandidater till candidates-log.csv — fyll på utfall själv för Oraklet-mätning senare.)
+
+⚠ Påminnelse: kandidatnivåerna bygger på 2026-10-16; jämför mot aktuell kurs.
+
+─────────────────────────────────────────────────────────────
+DIN DEL AV JOBBET:
+ 1. Kontrollera rapport-flagga (⚠) och gap — ta inte position dagen före rapport.
+ 2. Ta alla kvalificerade inom bucket. Ingen kvalificerad = ingen trade. Det är disciplin, inte passivitet.
+ 3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
+    (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
+ 4. LOGGA varje trade (setup, val, utfall). Efter 20–30 trades: kör vinst-
+    andel + payoff genom Monte Carlo-Oraklet = då VET du om edgen finns.
+Urvalsverktyg, inte rådgivning. Beslut och risk är dina.
+─────────────────────────────────────────────────────────────
