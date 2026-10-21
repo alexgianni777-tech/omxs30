@@ -22,4 +22,6 @@ jobs:
             node --check "$file"
           done
       - name: Smoke tests
-        run: node smoke-tests.js
+        run: |
+          node smoke-tests.js
+          node entry-quality.test.js
