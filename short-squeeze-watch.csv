@@ -1,0 +1,3 @@
+reportDate,dataDate,ticker,name,close,shortPct,shortAsOf,shortAgeWeekdays,deltaPp,trend5Pp,volMultiplier,trigger,status
+2026-10-23,2026-10-22,SCA-B.ST,SCA,125.800,8.010,2026-10-22,0,0.010,,1.845,,WATCH
+2026-10-23,2026-10-22,SKF-B.ST,SKF,261.800,7.530,2026-10-22,0,0.500,,1.332,,WATCH
