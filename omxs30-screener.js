@@ -389,6 +389,7 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
 /* -------------------------- main -------------------------- */
 const reportDate = require('./report-date');
 const { chooseCommonDataDate, ymd } = require('./data-date');
+const { summarizeProfile, profileLine } = require('./earnings-profile');
 
 async function main() {
   const dateStr = process.env.REPORT_DATE || reportDate();
@@ -508,6 +509,20 @@ async function main() {
   section('4 · SVAGAST — undvik long / ev. short-idéer', weakest, 'SHORT',
     'Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.', 'SVAGAST');
 
+  // Historical earnings behaviour is CONTEXT only. It never filters or ranks
+  // candidates, and does not create an earnings trading restriction.
+  console.log('\nRAPPORTREAKTIONER — historik, INTE köp-/säljsignal');
+  let covered = 0;
+  for (const [ticker] of TICKERS) {
+    const profile = summarizeProfile(ticker, dataDate);
+    if (!profile) continue;
+    covered++;
+    console.log(profileLine(profile));
+  }
+  console.log(`   Verifierad historik: ${covered}/${TICKERS.length} bolag; övriga saknar underlag, inte neutralt utfall.`);
+  console.log('   Rapporter hanteras manuellt. Historiken är liten och visar inte sannolikheten för nästa rapport.');
+  console.log('   Konsensusutfall: endast när historiska estimat och faktiskt utfall i samma mått är verifierade.');
+
   logCandidates(dateStr, { momentum, squeeze, bounce, weakest });
 
   if (delayed) console.log(`\n⚠ Påminnelse: kandidatnivåerna bygger på ${dataDate}; jämför mot aktuell kurs.`);
@@ -515,8 +530,8 @@ async function main() {
   console.log(`
 ─────────────────────────────────────────────────────────────
 DIN DEL AV JOBBET:
- 1. Kontrollera rapport-flagga (⚠) och gap — ta inte position dagen före rapport.
- 2. Ta alla kvalificerade inom bucket. Ingen kvalificerad = ingen trade. Det är disciplin, inte passivitet.
+ 1. Bedöm rapportdatum och gap MANUELLT; rapporthistoriken spärrar inga affärer.
+ 2. Kandidater är INTE automatiska köp/sälj. Kräv bekräftat läge och rimlig spread.
  3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
     (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
  4. LOGGA varje trade (setup, val, utfall). Efter 20–30 trades: kör vinst-
