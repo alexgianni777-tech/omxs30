@@ -1,0 +1,98 @@
+{
+  "ATCO-A.ST": {
+    "name": "Atlas Copco A",
+    "source": "https://se.marketscreener.com/nyheter/atlas-copco-vantas-redovisa-10-268-miljoner-kronor-i-justerat-rorelseresultat-factset-ce785cdbdb88f02c",
+    "sourcePublished": "2026-10-19",
+    "note": "Finwire/FactSet; aktiens förändring på rapportdagen. Q3 2026 ingår inte.",
+    "events": [
+      {
+        "date": "2024-10-23",
+        "quarter": "Q3 2024",
+        "reactionPct": 0
+      },
+      {
+        "date": "2025-01-28",
+        "quarter": "Q4 2024",
+        "reactionPct": -3.5
+      },
+      {
+        "date": "2025-04-29",
+        "quarter": "Q1 2025",
+        "reactionPct": -4.9
+      },
+      {
+        "date": "2025-07-18",
+        "quarter": "Q2 2025",
+        "reactionPct": -7.8
+      },
+      {
+        "date": "2025-10-23",
+        "quarter": "Q3 2025",
+        "reactionPct": -0.9
+      },
+      {
+        "date": "2026-01-27",
+        "quarter": "Q4 2025",
+        "reactionPct": -1.9
+      },
+      {
+        "date": "2026-04-28",
+        "quarter": "Q1 2026",
+        "reactionPct": -5.5
+      },
+      {
+        "date": "2026-07-16",
+        "quarter": "Q2 2026",
+        "reactionPct": 4.4
+      }
+    ]
+  },
+  "HEXA-B.ST": {
+    "name": "Hexagon B",
+    "source": "https://se.marketscreener.com/nyheter/hexagon-vantas-redovisa-237-miljoner-euro-i-ebitac-modular-ce785cd9d88df721",
+    "sourcePublished": "2026-10-21",
+    "note": "Finwire/Modular Finance; aktiens förändring på rapportdagen. Q3 2026 ingår inte.",
+    "events": [
+      {
+        "date": "2024-10-25",
+        "quarter": "Q3 2024",
+        "reactionPct": 3.8
+      },
+      {
+        "date": "2025-01-31",
+        "quarter": "Q4 2024",
+        "reactionPct": 9
+      },
+      {
+        "date": "2025-04-30",
+        "quarter": "Q1 2025",
+        "reactionPct": 2.1
+      },
+      {
+        "date": "2025-07-25",
+        "quarter": "Q2 2025",
+        "reactionPct": 7.9
+      },
+      {
+        "date": "2025-10-24",
+        "quarter": "Q3 2025",
+        "reactionPct": 6.7
+      },
+      {
+        "date": "2026-01-30",
+        "quarter": "Q4 2025",
+        "reactionPct": 1.1
+      },
+      {
+        "date": "2026-04-23",
+        "quarter": "Q1 2026",
+        "reactionPct": 2.1
+      },
+      {
+        "date": "2026-07-29",
+        "quarter": "Q2 2026",
+        "reactionPct": 12.2
+      }
+    ]
+  }
+}
