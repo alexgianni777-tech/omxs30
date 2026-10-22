@@ -534,8 +534,8 @@ DIN DEL AV JOBBET:
  2. Kandidater är INTE automatiska köp/sälj. Kräv bekräftat läge och rimlig spread.
  3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
     (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
- 4. LOGGA varje trade (setup, val, utfall). Efter 20–30 trades: kör vinst-
-    andel + payoff genom Monte Carlo-Oraklet = då VET du om edgen finns.
+ 4. LOGGA varje trade (setup, val, utfall). 20–30 trades är bara en första
+    indikation; statistisk edge kräver större urval och realistiska kostnader.
 Urvalsverktyg, inte rådgivning. Beslut och risk är dina.
 ─────────────────────────────────────────────────────────────`);
 }
