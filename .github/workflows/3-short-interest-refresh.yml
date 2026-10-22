@@ -1,0 +1,38 @@
+name: 3 · FI blankning (SCA och SKF)
+
+on:
+  schedule:
+    - cron: '30 18 * * 1-5'
+      timezone: 'Europe/Stockholm'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fi-short-interest-update
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Uppdatera FI-blankning (ett anrop, fail closed)
+        run: node short-interest-refresh.js
+      - name: Spara ny observation utan extra Telegram-notis
+        run: |
+          if git diff --quiet -- short-interest-history.json; then
+            echo "FI oförändrad; ingen commit."
+            exit 0
+          fi
+          git config user.name "ag-invest-bot"
+          git config user.email "actions@github.com"
+          git add short-interest-history.json
+          git commit -m "FI blankning $(TZ=Europe/Stockholm date +%F)"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
