@@ -390,6 +390,7 @@ function section(title, items, dir = 'LONG', note = '', bucket = 'MOMENTUM') {
 const reportDate = require('./report-date');
 const { chooseCommonDataDate, ymd } = require('./data-date');
 const { summarizeProfile, profileLine } = require('./earnings-profile');
+const { WATCH_TICKERS, evaluateShortSqueeze, renderWatch, logWatch } = require('./short-squeeze');
 
 async function main() {
   const dateStr = process.env.REPORT_DATE || reportDate();
@@ -509,6 +510,18 @@ async function main() {
   section('4 · SVAGAST — undvik long / ev. short-idéer', weakest, 'SHORT',
     'Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.', 'SVAGAST');
 
+  // Bevakningskategori: blankning + bekräftad teknisk vändning från D-1.
+  // Bara SCA och SKF initialt. Aldrig automatisk köporder, aldrig rapportspärr.
+  console.log('\n=== 5 · SHORT SQUEEZE / REVERSAL — separat observationslista ===');
+  const shortSqueezeWatches = WATCH_TICKERS.map(ticker => {
+    const r = rows.find(x => x.ticker === ticker);
+    const bars = stockBars.get(ticker).filter(b => ymd(b.t) <= dataDate);
+    return evaluateShortSqueeze(ticker, r, bars, dataDate);
+  });
+  for (const watch of shortSqueezeWatches) console.log(renderWatch(watch));
+  console.log('   Kräver dessutom en manuellt verifierad katalysator, färsk kurs, faktisk spread och rimlig netto-R/R.');
+  console.log('   Signal baserad på D-1. Ingen automatisk affär; gamla eller saknade FI-data spärrar ENBART denna kategori.');
+
   // Historical earnings behaviour is CONTEXT only. It never filters or ranks
   // candidates, and does not create an earnings trading restriction.
   console.log('\nRAPPORTREAKTIONER — historik, INTE köp-/säljsignal');
@@ -524,6 +537,8 @@ async function main() {
   console.log('   Konsensusutfall: endast när historiska estimat och faktiskt utfall i samma mått är verifierade.');
 
   logCandidates(dateStr, { momentum, squeeze, bounce, weakest });
+  const shortLogs = logWatch(dateStr, dataDate, shortSqueezeWatches);
+  console.log('('+shortLogs+' nya SCA/SKF-observationer i short-squeeze-watch.csv.)');
 
   if (delayed) console.log(`\n⚠ Påminnelse: kandidatnivåerna bygger på ${dataDate}; jämför mot aktuell kurs.`);
 
