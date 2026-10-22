@@ -81,3 +81,42 @@ assert.strictEqual(a.flat, 1);
 assert.strictEqual(summarizeProfile('INVE-B.ST', '2026-10-22'), null);
 assert.strictEqual(summarizeProfile('HEXA-B.ST', '2024-01-01'), null);
 console.log('Earnings profile tests passed (no trading restriction)');
+
+// Short-squeeze watch: historical as-of gating, explicit stale handling,
+// entry confirmation as WATCH (never executable) and FI parsing.
+const {getInterest, evaluateShortSqueeze, weekdaysApart, logWatch}=require('./short-squeeze');
+const {parseFiPage}=require('./short-interest-refresh');
+const fs=require('fs'),os=require('os'),path=require('path');
+const oldSCA=getInterest('SCA-B.ST','2026-10-21');
+assert.strictEqual(oldSCA.shortPct,8.00);
+assert.strictEqual(oldSCA.asOfDate,'2026-10-21'); // no 22 Oct lookahead
+assert.strictEqual(getInterest('SCA-B.ST','2026-10-22').shortPct,8.12);
+assert.strictEqual(getInterest('SKF-B.ST','2026-10-22').shortPct,7.53);
+assert.strictEqual(getInterest('SCA-B.ST','2026-09-01').status,'MISSING');
+assert.strictEqual(getInterest('SCA-B.ST','2026-11-10').status,'STALE');
+assert.strictEqual(weekdaysApart('2026-10-22','2026-10-23'),1);
+assert.strictEqual(weekdaysApart('2026-10-23','2026-10-26'),1);
+const mockBars=Array.from({length:22},(_,i)=>({c:i===21?103:100,h:i===21?104:101,l:99}));
+const mock={name:'SCA',c:103,sma20:100.15,vol:1.8};
+const alert=evaluateShortSqueeze('SCA-B.ST',mock,mockBars,'2026-10-22');
+assert.strictEqual(alert.status,'TECHNICAL_WATCH');
+assert.strictEqual(alert.trigger,'20D_BREAKOUT');
+assert.strictEqual(alert.executable,false);
+assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',{...mock,vol:1.1},mockBars,'2026-10-22').status,'WATCH');
+assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',mock,mockBars,'2026-11-10').status,'DATA_STALE');
+const tempDir=fs.mkdtempSync(path.join(os.tmpdir(),'short-squeeze-test-'));
+try {
+ const logPath=path.join(tempDir,'watch.csv');
+ assert.strictEqual(logWatch('2026-10-23','2026-10-22',[alert],logPath),1);
+ assert.strictEqual(logWatch('2026-10-23','2026-10-22',[alert],logPath),0);
+ assert.strictEqual(fs.readFileSync(logPath,'utf8').trim().split('\n').length,2);
+} finally {fs.rmSync(tempDir,{recursive:true,force:true});}
+const fiHtml='<h2>Aktuella positioner 2026-10-22</h2><table>'+
+ '<tr><td>SCA</td><td>549300FW5JDRV1IJ0M67</td><td>2026-10-21</td><td>8,12</td></tr>'+
+ '<tr><td>SKF</td><td>549300B6HWYEE57O8J84</td><td>2026-10-21</td><td>7,53</td></tr>'+
+ '</table>';
+assert.strictEqual(parseFiPage(fiHtml).rows['SCA-B.ST'].shortPct,8.12);
+assert.strictEqual(parseFiPage(fiHtml).rows['SKF-B.ST'].shortPct,7.53);
+assert.throws(()=>parseFiPage(fiHtml.replace('7,53','9999')),/felaktig/i);
+assert.throws(()=>parseFiPage(fiHtml.replace('549300FW5JDRV1IJ0M67','NOT-FOUND')),/Kan inte säkert/);
+console.log('SCA/SKF short squeeze smoke tests passed');
