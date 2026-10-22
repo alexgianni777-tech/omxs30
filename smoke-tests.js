@@ -66,3 +66,18 @@ assert.strictEqual(planMatch[3], '44.00');
 assert.strictEqual(planMatch[4], '47.12');
 assert.strictEqual(planMatch[5], '1.67');
 assert.strictEqual(planMatch[6], '46.34');
+
+const { summarizeProfile, profileLine } = require('./earnings-profile');
+const h = summarizeProfile('HEXA-B.ST', '2026-10-22');
+assert.strictEqual(h.n, 8);
+assert.strictEqual(h.up, 8);
+assert.strictEqual(h.down, 0);
+assert.ok(profileLine(h).includes('8 upp / 0 ned'));
+const a = summarizeProfile('ATCO-A.ST', '2026-10-22');
+assert.strictEqual(a.n, 8);
+assert.strictEqual(a.up, 1);
+assert.strictEqual(a.down, 6);
+assert.strictEqual(a.flat, 1);
+assert.strictEqual(summarizeProfile('INVE-B.ST', '2026-10-22'), null);
+assert.strictEqual(summarizeProfile('HEXA-B.ST', '2024-01-01'), null);
+console.log('Earnings profile tests passed (no trading restriction)');
