@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "notes": "Endast aggregerad FI-blankning (>0,1%-positioner). Snapshots är observationsdatum, inte garantier om faktiska utestående korta positioner; dataset ska inte användas före sourcePublished.",
+  "snapshots": [
+    {
+      "asOfDate": "2026-10-20",
+      "sourcePublished": "2026-10-20",
+      "source": "https://se.marketscreener.com/nyheter/aggregerade-blankningspositioner-p-stockholmsborsen-per-20-oktober-ce785cd8db8bf221",
+      "publisher": "Finwire, återger FI",
+      "rows": {
+        "SCA-B.ST": {
+          "shortPct": 7.89
+        },
+        "SKF-B.ST": {
+          "shortPct": 7.44
+        }
+      }
+    },
+    {
+      "asOfDate": "2026-10-21",
+      "sourcePublished": "2026-10-21",
+      "source": "https://www.fi.se/sv/vara-register/blankningsregistret/",
+      "publisher": "Finansinspektionen",
+      "rows": {
+        "SCA-B.ST": {
+          "shortPct": 8,
+          "positionDate": "2026-10-20"
+        },
+        "SKF-B.ST": {
+          "shortPct": 7.03,
+          "positionDate": "2026-10-20"
+        }
+      }
+    },
+    {
+      "asOfDate": "2026-10-22",
+      "sourcePublished": "2026-10-22",
+      "source": "https://www.fi.se/sv/vara-register/blankningsregistret/",
+      "publisher": "Finansinspektionen",
+      "rows": {
+        "SCA-B.ST": {
+          "shortPct": 8.12,
+          "positionDate": "2026-10-21"
+        },
+        "SKF-B.ST": {
+          "shortPct": 7.53,
+          "positionDate": "2026-10-21"
+        }
+      }
+    }
+  ]
+}
