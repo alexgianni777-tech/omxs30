@@ -90,7 +90,12 @@ const fs=require('fs'),os=require('os'),path=require('path');
 const oldSCA=getInterest('SCA-B.ST','2026-10-21');
 assert.strictEqual(oldSCA.shortPct,8.00);
 assert.strictEqual(oldSCA.asOfDate,'2026-10-21'); // no 22 Oct lookahead
-assert.strictEqual(getInterest('SCA-B.ST','2026-10-22').shortPct,8.12);
+// FI daily observations are updated by a workflow. Validate against the dated
+// snapshot, not an obsolete value from a previous run (8.12 was never stored).
+const history = require('./short-interest-history.json');
+const snap22 = history.snapshots.find(s => s.asOfDate === '2026-10-22');
+assert.ok(snap22, 'FI snapshot must exist for 2026-10-22');
+assert.strictEqual(getInterest('SCA-B.ST','2026-10-22').shortPct,snap22.rows['SCA-B.ST'].shortPct);
 assert.strictEqual(getInterest('SKF-B.ST','2026-10-22').shortPct,7.53);
 assert.strictEqual(getInterest('SCA-B.ST','2026-09-01').status,'MISSING');
 assert.strictEqual(getInterest('SCA-B.ST','2026-11-10').status,'STALE');
