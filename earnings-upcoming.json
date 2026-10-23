@@ -1,0 +1,8 @@
+{
+  "updated": "2026-10-23",
+  "note": "Manually verified issuer IR schedules. Missing/outdated dates must be checked manually; never assume no earnings.",
+  "dates": {
+    "BOL.ST": "2026-10-29",
+    "NOVO-B.CO": "2026-11-04"
+  }
+}

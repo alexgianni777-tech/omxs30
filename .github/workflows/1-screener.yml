@@ -5,6 +5,9 @@ on:
     branches: ["main"]
     paths:
       - "omxs30-screener.js"
+      - "short-quality.js"
+      - "short-quality-tests.js"
+      - "earnings-upcoming.json"
       - "data-date.js"
       - "report-date.js"
       - "smoke-tests.js"
