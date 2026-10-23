@@ -60,10 +60,7 @@ const LOG_CANDIDATES = true;       // skriver dagens kandidater till candidates-
 // Hämtas från Avanza eller bolagens IR-kalender. Screenern varnar då automatiskt om en
 // kandidat har rapport inom EARNINGS_WARN_DAYS — du vill sällan daytrada in i en rapport.
 // Exempel: 'VOLV-B.ST': '2026-07-18'
-const EARNINGS = {
-  // 'VOLV-B.ST': '2026-07-18',
-  // 'ERIC-B.ST': '2026-07-14',
-};
+const EARNINGS = require('./earnings-upcoming.json').dates;
 const EARNINGS_WARN_DAYS = 5;
 
 /* ------------------------- data ------------------------- */
@@ -341,7 +338,7 @@ const BUCKET_PARAMS = {
   MOMENTUM: { targetMult: 2.0, holdDays: 10 },
   SQUEEZE:  { targetMult: 2.5, holdDays: 15 },
   STUDS:    { targetMult: 1.5, holdDays: 5  },
-  SVAGAST:  { targetMult: 2.0, holdDays: 10 },
+  SVAGAST:  { targetMult: 2.4, holdDays: 10 },
 };
 function plan(r, dir = 'LONG', bucket = 'MOMENTUM') {
   if (r.atrAbs == null) return '';
@@ -366,7 +363,8 @@ const f = (v, d = 1, w = 6) => v == null ? '–'.padStart(w) : v.toFixed(d).padS
 function daysUntilEarnings(ticker) {
   const d = EARNINGS[ticker];
   if (!d) return null;
-  const diff = Math.ceil((new Date(d + 'T00:00:00') - new Date()) / 86400000);
+  const asOf = process.env.REPORT_DATE || reportDate();
+  const diff = Math.ceil((Date.parse(d + 'T00:00:00Z') - Date.parse(asOf + 'T00:00:00Z')) / 86400000);
   return diff;
 }
 function warnings(r) {
@@ -391,6 +389,7 @@ const reportDate = require('./report-date');
 const { chooseCommonDataDate, ymd } = require('./data-date');
 const { summarizeProfile, profileLine } = require('./earnings-profile');
 const { WATCH_TICKERS, evaluateShortSqueeze, renderWatch, logWatch } = require('./short-squeeze');
+const { reviewShort, shortReviewLine } = require('./short-quality');
 
 async function main() {
   const dateStr = process.env.REPORT_DATE || reportDate();
@@ -496,10 +495,13 @@ async function main() {
               && r.above200 && (r.r63 ?? -1) > 0)
     .sort((a, b) => (a.pctB ?? 1) - (b.pctB ?? 1)).slice(0, 4);
 
-  // 4. SVAGAST — under SMA50, sämst RS, inte redan panik-översåld
-  const weakest = [...rows]
-    .filter(r => !r.above50 && (r.rsi == null || r.rsi > 30))
-    .sort((a, b) => a.momScore - b.momScore).slice(0, 3);
+  // 4. SVAGAST: only vetted short WATCH candidates reach the plan formatter.
+  // The raw "weakest" universe remains observable in the audit section below.
+  const shortReviewed = rows.map(r => ({ row:r, review:reviewShort(r, idx, dataDate, EARNINGS) }));
+  const weakest = shortReviewed
+    .filter(item => item.review.status === 'WATCH')
+    .sort((a, b) => b.review.score - a.review.score)
+    .slice(0, 3).map(item => item.row);
 
   section('1 · MOMENTUM — relativ styrka mot index (fortsättnings-long)', momentum, 'LONG',
     'Starkast i flocken, i trend, ej överköpt. Bäst i medvind.', 'MOMENTUM');
@@ -507,8 +509,16 @@ async function main() {
     'Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.', 'SQUEEZE');
   section('3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont)', bounce, 'LONG',
     'RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.', 'STUDS');
-  section('4 · SVAGAST — undvik long / ev. short-idéer', weakest, 'SHORT',
-    'Under SMA50, sämst relativ styrka. Short i mini-future = egen riskkalkyl.', 'SVAGAST');
+  section('4 · SVAGAST — kvalitetssäkrade shortbevakningar', weakest, 'SHORT',
+    'WATCH, INTE entry: under SMA50, svag 1m relativt index, ej översåld/gapjakt/rapportnära. Stop/mål för underliggande aktie, inte derivatet.', 'SVAGAST');
+  console.log('\\n=== 4B · SHORT-KVALITET — varför kandidater filtrerades ===');
+  const rawWeakest = [...rows].filter(r => !r.above50)
+    .sort((a,b) => a.momScore-b.momScore).slice(0,5);
+  for (const r of rawWeakest) {
+    const item=shortReviewed.find(x=>x.row.ticker===r.ticker);
+    console.log(shortReviewLine(r,item.review));
+  }
+  console.log('   Alla shortbevakningar bygger på stängningsdata; rapportdatum som saknas måste kontrolleras. Kontrollera aktuell kurs, rekyl-/brottsignal, spread, hävstång och faktisk produktstop före handel.');
 
   // Bevakningskategori: blankning + bekräftad teknisk vändning från D-1.
   // Bara SCA och SKF initialt. Aldrig automatisk köporder, aldrig rapportspärr.
