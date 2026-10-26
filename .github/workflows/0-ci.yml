@@ -25,3 +25,4 @@ jobs:
         run: |
           node smoke-tests.js
           node short-quality-tests.js
+          node oraklet-quality-tests.js

@@ -1,0 +1,33 @@
+{
+  "updated": "2026-10-26",
+  "methodology": "Manually transcribed public issuer Q3 2026 releases. Metrics compare the same company, same definition, year-on-year; not analyst-consensus surprises. Missing issuer reports never count as positive. Only issuer-published information on or before the D-1 pricing date may be used.",
+  "reports": {
+    "ERIC-B.ST": {
+      "period": "2026Q3",
+      "releasedOn": "2026-10-15",
+      "availableFrom": "2026-10-15",
+      "sourceUrl": "https://www.ericsson.com/en/press-releases/2026/10/ericsson-reports-third-quarter-results-2026",
+      "organicGrowthYoYPct": 7,
+      "marginDeltaPp": -0.4,
+      "marginBasis": "Adjusted gross margin, 47.7% vs 48.1%"
+    },
+    "HEXA-B.ST": {
+      "period": "2026Q3",
+      "releasedOn": "2026-10-23",
+      "availableFrom": "2026-10-23",
+      "sourceUrl": "https://hexagon.com/company/newsroom/press-releases/2026/hexagon-interim-report-1-january---30-september-2026",
+      "organicGrowthYoYPct": 13,
+      "marginDeltaPp": 0.9,
+      "marginBasis": "EBITAC margin, 25.3% vs 24.4%"
+    },
+    "SAAB-B.ST": {
+      "period": "2026Q3",
+      "releasedOn": "2026-10-23",
+      "availableFrom": "2026-10-23",
+      "sourceUrl": "https://www.saab.com/newsroom/press-releases/2026/saab-q3-results-2026positioned-to-capture-growing-demand",
+      "organicGrowthYoYPct": 30.6,
+      "marginDeltaPp": 0.8,
+      "marginBasis": "EBIT margin, 9.5% vs 8.7%"
+    }
+  }
+}
