@@ -7,6 +7,9 @@ on:
       - "omxs30-screener.js"
       - "short-quality.js"
       - "short-quality-tests.js"
+      - "oraklet-quality.js"
+      - "oraklet-quality-tests.js"
+      - "report-quality.json"
       - "earnings-upcoming.json"
       - "data-date.js"
       - "report-date.js"
@@ -186,7 +189,7 @@ jobs:
           else
             mkdir -p sent-reports
             printf 'Telegram skickat för %s vid %s\n' "$REPORT_DATE" "$(date -u +%FT%TZ)" > "sent-reports/$REPORT_DATE"
-            git add -- candidates-log.csv short-squeeze-watch.csv "sent-reports/$REPORT_DATE" "report-outputs/$REPORT_DATE.txt"
+            git add -- candidates-log.csv oraklet-candidates.csv short-squeeze-watch.csv "sent-reports/$REPORT_DATE" "report-outputs/$REPORT_DATE.txt"
             if [ -f "dashboard-pending/$REPORT_DATE" ]; then
               git add -- "dashboard-pending/$REPORT_DATE"
             fi
