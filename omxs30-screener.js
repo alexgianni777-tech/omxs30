@@ -390,6 +390,8 @@ const { chooseCommonDataDate, ymd } = require('./data-date');
 const { summarizeProfile, profileLine } = require('./earnings-profile');
 const { WATCH_TICKERS, evaluateShortSqueeze, renderWatch, logWatch } = require('./short-squeeze');
 const { reviewShort, shortReviewLine } = require('./short-quality');
+const { screenElite, renderElite, logElite } = require('./oraklet-quality');
+const REPORT_QUALITY = require('./report-quality.json');
 
 async function main() {
   const dateStr = process.env.REPORT_DATE || reportDate();
@@ -475,6 +477,11 @@ async function main() {
 
   zscore(rows, 'rs63'); zscore(rows, 'rs21');
 
+  // Dedicated evidence gate; legacy technical candidates remain WATCH-only for
+  // historical continuity and compatibility with the dashboard parser.
+  const elite = screenElite(rows, idx, dataDate, REPORT_QUALITY, EARNINGS);
+  console.log(renderElite(elite, dataDate));
+
   // 1. MOMENTUM — RS mot index, i trend, ej överköpt, levande volla
   rows.forEach(r => {
     r.momScore = 0.6 * r.z_rs63 + 0.4 * r.z_rs21;
@@ -482,18 +489,19 @@ async function main() {
     if (r.atrPct != null && r.atrPct < 0.8) r.momScore -= 0.5;
     if (!r.above50) r.momScore -= 1.0;
   });
-  const momentum = [...rows].filter(r => r.above50).sort((a, b) => b.momScore - a.momScore).slice(0, 5);
+  const momentum = [...rows].filter(r => r.above50 && r.rsi != null && r.rsi <= 72)
+    .sort((a, b) => b.momScore - a.momScore).slice(0, 3);
 
   // 2. SQUEEZE / UTBROTT — hoptryckta band nära 20d-högsta
   const squeeze = [...rows]
-    .filter(r => r.bwPct != null && r.bwPct < 20 && r.dHigh20 > -2.5 && r.above50)
-    .sort((a, b) => a.bwPct - b.bwPct).slice(0, 4);
+    .filter(r => r.bwPct != null && r.bwPct < 20 && r.dHigh20 > -2.5 && r.above50 && r.pctB != null && r.pctB <= 1)
+    .sort((a, b) => a.bwPct - b.bwPct).slice(0, 2);
 
   // 3. STUDS — RSI<35 ELLER under nedre bandet, men i intakt längre trend
   const bounce = [...rows]
     .filter(r => ((r.rsi != null && r.rsi < 35) || (r.pctB != null && r.pctB < 0.05))
               && r.above200 && (r.r63 ?? -1) > 0)
-    .sort((a, b) => (a.pctB ?? 1) - (b.pctB ?? 1)).slice(0, 4);
+    .sort((a, b) => (a.pctB ?? 1) - (b.pctB ?? 1)).slice(0, 2);
 
   // 4. SVAGAST: only vetted short WATCH candidates reach the plan formatter.
   // The raw "weakest" universe remains observable in the audit section below.
@@ -504,7 +512,7 @@ async function main() {
     .slice(0, 3).map(item => item.row);
 
   section('1 · MOMENTUM — relativ styrka mot index (fortsättnings-long)', momentum, 'LONG',
-    'Starkast i flocken, i trend, ej överköpt. Bäst i medvind.', 'MOMENTUM');
+    'Teknisk WATCH, inte entry eller fundamental kvalitetsstämpel. RSI högst 72.', 'MOMENTUM');
   section('2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt)', squeeze, 'LONG',
     'Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.', 'SQUEEZE');
   section('3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont)', bounce, 'LONG',
@@ -547,6 +555,8 @@ async function main() {
   console.log('   Konsensusutfall: endast när historiska estimat och faktiskt utfall i samma mått är verifierade.');
 
   logCandidates(dateStr, { momentum, squeeze, bounce, weakest });
+  const newElite = logElite(dateStr, dataDate, elite.qualified);
+  console.log('(' + newElite + ' nya verifierade Oraklet-bevakningar i oraklet-candidates.csv.)');
   const shortLogs = logWatch(dateStr, dataDate, shortSqueezeWatches);
   console.log('('+shortLogs+' nya SCA/SKF-observationer i short-squeeze-watch.csv.)');
 
