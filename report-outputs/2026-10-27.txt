@@ -1,0 +1,119 @@
+OMXS30 SCREENER · 2026-10-27
+Hämtar index + 30 bolag 
+REPAIRED_INTRADAY ^OMX 2026-10-26 O=3178.73193359375 H=3225.432861328125 L=3178.73193359375 C=3225.432861328125 V=0
+REPAIRED_INTRADAY ABB.ST 2026-10-26 O=820.4000244140625 H=840.4000244140625 L=819 C=839.4000244140625 V=666271
+.REPAIRED_INTRADAY ALFA.ST 2026-10-26 O=540.4000244140625 H=549.5999755859375 L=540.4000244140625 C=549.5999755859375 V=558584
+.REPAIRED_INTRADAY ASSA-B.ST 2026-10-26 O=369.79998779296875 H=373.6000061035156 L=368 C=372.8999938964844 V=2183054
+.REPAIRED_INTRADAY AZN.ST 2026-10-26 O=1705 H=1721 L=1701.5 C=1708 V=300469
+.REPAIRED_INTRADAY ATCO-A.ST 2026-10-26 O=176.39999389648438 H=182.3000030517578 L=176.14999389648438 C=182.3000030517578 V=6930924
+.REPAIRED_INTRADAY ALIV-SDB.ST 2026-10-26 O=1136 H=1153 L=1131 C=1151 V=75486
+.REPAIRED_INTRADAY BOL.ST 2026-10-26 O=487.5 H=500.6000061035156 L=487.20001220703125 C=495 V=1019646
+.REPAIRED_INTRADAY ELUX-B.ST 2026-10-26 O=26.219999313354492 H=26.59000015258789 L=25.399999618530273 C=26.170000076293945 V=4955419
+.REPAIRED_INTRADAY EPI-A.ST 2026-10-26 O=250.6999969482422 H=255.3000030517578 L=250 C=255 V=1320962
+.REPAIRED_INTRADAY ERIC-B.ST 2026-10-26 O=105.5 H=108.5999984741211 L=104.94999694824219 C=108.5999984741211 V=9120018
+.REPAIRED_INTRADAY ESSITY-B.ST 2026-10-26 O=276.6000061035156 H=276.70001220703125 L=272.79998779296875 C=276.29998779296875 V=948227
+.REPAIRED_INTRADAY EVO.ST 2026-10-26 O=824.5999755859375 H=837 L=810.4000244140625 C=837 V=486336
+.REPAIRED_INTRADAY GETI-B.ST 2026-10-26 O=269.70001220703125 H=270 L=264.5 C=268 V=395262
+.REPAIRED_INTRADAY HEXA-B.ST 2026-10-26 O=107.19999694824219 H=109.5999984741211 L=106.4000015258789 C=109.44999694824219 V=4875168
+.REPAIRED_INTRADAY HM-B.ST 2026-10-26 O=174.89999389648438 H=177.60000610351562 L=174 C=177.60000610351562 V=1453975
+.REPAIRED_INTRADAY INVE-B.ST 2026-10-26 O=413.5 H=418.45001220703125 L=412.79998779296875 C=418.45001220703125 V=3143385
+.REPAIRED_INTRADAY NDA-SE.ST 2026-10-26 O=171.0500030517578 H=173.75 L=170.8000030517578 C=173.35000610351562 V=2504827
+.REPAIRED_INTRADAY NIBE-B.ST 2026-10-26 O=44.43000030517578 H=44.84000015258789 L=44.189998626708984 C=44.84000015258789 V=3141965
+.REPAIRED_INTRADAY SAAB-B.ST 2026-10-26 O=643.5999755859375 H=653.4000244140625 L=618.9000244140625 C=651.9000244140625 V=2723181
+.REPAIRED_INTRADAY SAND.ST 2026-10-26 O=348.70001220703125 H=352.5 L=345.3999938964844 C=352.20001220703125 V=2445344
+.REPAIRED_INTRADAY SCA-B.ST 2026-10-26 O=123.55000305175781 H=124.55000305175781 L=121.69999694824219 C=124.3499984741211 V=1755806
+.REPAIRED_INTRADAY SEB-A.ST 2026-10-26 O=202 H=205.8000030517578 L=202 C=205.8000030517578 V=2538890
+.REPAIRED_INTRADAY SHB-A.ST 2026-10-26 O=150.0500030517578 H=152.25 L=149.64999389648438 C=152.1999969482422 V=5672632
+.REPAIRED_INTRADAY SKA-B.ST 2026-10-26 O=270.70001220703125 H=274.20001220703125 L=270 C=273.6000061035156 V=546941
+.REPAIRED_INTRADAY SKF-B.ST 2026-10-26 O=269.5 H=275.3999938964844 L=266.3999938964844 C=275.3999938964844 V=1076318
+.REPAIRED_INTRADAY SSAB-A.ST 2026-10-26 O=97.44000244140625 H=98.05999755859375 L=96.66000366210938 C=97.16000366210938 V=230154
+.REPAIRED_INTRADAY SWED-A.ST 2026-10-26 O=381.1000061035156 H=383.70001220703125 L=379.3999938964844 C=381.70001220703125 V=1879368
+.REPAIRED_INTRADAY TEL2-B.ST 2026-10-26 O=159.3000030517578 H=159.39999389648438 L=156.39999389648438 C=157.3000030517578 V=1584556
+.REPAIRED_INTRADAY TELIA.ST 2026-10-26 O=48.2400016784668 H=48.2599983215332 L=47.58000183105469 C=47.83000183105469 V=5825854
+.REPAIRED_INTRADAY VOLV-B.ST 2026-10-26 O=306.3999938964844 H=312.5 L=305.79998779296875 C=311.8999938964844 V=2685816
+.
+
+⚠⚠⚠ EN HANDELSDAGS FÖRDRÖJNING ⚠⚠⚠
+Rapportdag: 2026-10-27 · all ranking/entry/stop/mål använder gemensam stängningsdata från 2026-10-26.
+Detta är avsiktligt tillåtet. Jämför nivåerna mot aktuell kurs innan du tar en trade.
+Ingen serie blandas med nyare data; hela screeningen använder samma datadag.
+─────────────────────────────────────────────────────────────
+MARKNADSVÄDER  OMXS30 3225.4 | 5d   -1.3% | 1m   -2.1% | 3m    0.2% | RSI  48
+               → MOTVIND (index under SMA50 — long kräver extra starkt case, studsar opålitliga)
+
+=== 0B · ORAKLET TOPP 3 — trend + rapportkvalitet + relativ styrka ===
+    QUALIFIED = kvalitetssäkrad BEVAKNING, ALDRIG automatisk entry. D-1: 2026-10-26.
+    Bara verifierade och publicerade rapporter räknas. Positiv tillväxt OCH förbättrad jämförbar marginal krävs.
+    Saab | score 85/100 | RS3m +8.5 | RS1m +6.8 | organisk tillväxt 30.6% | marginalförändring +0.8 pp
+      OBS: NASTA_RAPPORTDATUM_EJ_VERIFIERAT, FARSK_RAPPORT_REKYL_RISK
+    Granskning av övriga toppkandidater (WATCH, inte entry):
+      Hexagon | RSI_UTANFOR_INTERVALL | score 82/100
+      Ericsson | SVAG_VOLYM, RAPPORT_MIXED | score 68/100
+      Evolution | RAPPORTDATA_SAKNAS | score 60/100
+      Assa Abloy | RAPPORTDATA_SAKNAS | score 59/100
+      SCA | INDEX_MOTVIND_KRAVER_MER_RS, RAPPORTDATA_SAKNAS | score 59/100
+    Poängen är en transparent intern prioritering, INTE sannolikhet, konsensussurprise eller backtestad edge.
+
+=== 1 · MOMENTUM — relativ styrka mot index (fortsättnings-long) ===
+    Teknisk WATCH, inte entry eller fundamental kvalitetsstämpel. RSI högst 72.
+1. Ericsson         108.60 | RS3m   12.6 | 1m   14.4% | RSI   65 | %B  0.98 | ATR    2.9% | vol  0.8x | ↔20dH    0.0%
+      plan(LONG): entry ~108.60 · stop 104.81 (1.2×ATR) · mål 114.92 (R/R 1.67) · 1R 112.39 · måltyp 2×ATR · max 10 dagar
+2. NIBE              44.84 | RS3m   19.3 | 1m   -1.8% | RSI   59 | %B  0.67 | ATR    2.2% | vol  0.6x | ↔20dH   -3.0%
+      plan(LONG): entry ~44.84 · stop 43.65 (1.2×ATR) · mål 46.82 (R/R 1.67) · 1R 46.03 · måltyp 2×ATR · max 10 dagar
+3. SCA              124.35 | RS3m   13.7 | 1m    0.9% | RSI   56 | %B  0.66 | ATR    2.0% | vol  1.0x | ↔20dH   -1.9%
+      plan(LONG): entry ~124.35 · stop 121.42 (1.2×ATR) · mål 129.23 (R/R 1.67) · 1R 127.28 · måltyp 2×ATR · max 10 dagar
+
+=== 2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt) ===
+    Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.
+    Inga kvalificerade idag.
+
+=== 3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont) ===
+    RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.
+1. Swedbank         381.70 | RS3m    1.8 | 1m   -7.1% | RSI   38 | %B  0.02 | ATR    2.0% | vol  0.9x | ↔20dH   -8.2%
+      plan(LONG): entry ~381.70 · stop 372.55 (1.2×ATR) · mål 393.13 (R/R 1.25) · 1R 390.85 · måltyp 1.5×ATR · max 5 dagar
+
+=== 4 · SVAGAST — kvalitetssäkrade shortbevakningar ===
+    WATCH, INTE entry: under SMA50, svag 1m relativt index, ej översåld/gapjakt/rapportnära. Stop/mål för underliggande aktie, inte derivatet.
+1. Sandvik          352.20 | RS3m    1.4 | 1m   -6.8% | RSI   45 | %B  0.33 | ATR    3.0% | vol  1.2x | ↔20dH   -8.9%
+      plan(SHORT): entry ~352.20 · stop 364.77 (1.2×ATR) · mål 327.05 (R/R 2.00) · 1R 339.63 · måltyp 2.4×ATR · max 10 dagar
+2. Tele2            157.30 | RS3m   -6.8 | 1m   -6.3% | RSI   40 | %B  0.40 | ATR    2.4% | vol  0.7x | ↔20dH   -5.6%
+      plan(SHORT): entry ~157.30 · stop 161.87 (1.2×ATR) · mål 148.15 (R/R 2.00) · 1R 152.73 · måltyp 2.4×ATR · max 10 dagar
+3. Volvo            311.90 | RS3m  -14.5 | 1m   -4.1% | RSI   39 | %B  0.25 | ATR    2.0% | vol  0.9x | ↔20dH   -5.3%
+      plan(SHORT): entry ~311.90 · stop 319.43 (1.2×ATR) · mål 296.83 (R/R 2.00) · 1R 304.37 · måltyp 2.4×ATR · max 10 dagar
+\n=== 4B · SHORT-KVALITET — varför kandidater filtrerades ===
+   Nordea | BLOCKED | kvalitet 85/100 | OVERSALD_RSI | OBS RAPPORTDATUM_EJ_VERIFIERAT
+   Volvo | WATCH | kvalitet 67/100 | Manuell trigger/spread/produktkontroll krävs | OBS RAPPORTDATUM_EJ_VERIFIERAT
+   ABB | BLOCKED | kvalitet 85/100 | OVERSALD_RSI | OBS RAPPORTDATUM_EJ_VERIFIERAT
+   SEB | BLOCKED | kvalitet 75/100 | OVERSALD_RSI | OBS RAPPORTDATUM_EJ_VERIFIERAT
+   Atlas Copco | BLOCKED | kvalitet 85/100 | NARA_NEDRE_BOLLINGER | OBS RAPPORTDATUM_EJ_VERIFIERAT
+   Alla shortbevakningar bygger på stängningsdata; rapportdatum som saknas måste kontrolleras. Kontrollera aktuell kurs, rekyl-/brottsignal, spread, hävstång och faktisk produktstop före handel.
+
+=== 5 · SHORT SQUEEZE / REVERSAL — separat observationslista ===
+   SCA 124.35 kr | blankning 8.32% (2026-10-26) | senaste förändring -0.07 procentenheter | 5–10 d trend: saknas | vol 1.0× | BEVAKA (ingen bekräftad entry) | ingen breakout/återtag med volym
+   SKF 275.40 kr | blankning 7.56% (2026-10-26) | senaste förändring +0.13 procentenheter | 5–10 d trend: saknas | vol 0.8× | BEVAKA (ingen bekräftad entry) | ingen breakout/återtag med volym
+   Kräver dessutom en manuellt verifierad katalysator, färsk kurs, faktisk spread och rimlig netto-R/R.
+   Signal baserad på D-1. Ingen automatisk affär; gamla eller saknade FI-data spärrar ENBART denna kategori.
+
+RAPPORTREAKTIONER — historik, INTE köp-/säljsignal
+   Atlas Copco A: 8 rapportdagar · 1 upp / 6 ned / 1 oförändrade · snitt -2.5% · median -2.7% · snittrörelse |%| 3.6% · sämst -7.8% · bäst +4.4% · senaste +4.4% (2026-07-16)
+   Hexagon B: 8 rapportdagar · 8 upp / 0 ned / 0 oförändrade · snitt +5.6% · median +5.3% · snittrörelse |%| 5.6% · sämst +1.1% · bäst +12.2% · senaste +12.2% (2026-07-29)
+   Verifierad historik: 2/30 bolag; övriga saknar underlag, inte neutralt utfall.
+   Rapporter hanteras manuellt. Historiken är liten och visar inte sannolikheten för nästa rapport.
+   Konsensusutfall: endast när historiska estimat och faktiskt utfall i samma mått är verifierade.
+
+(Loggade 7 kandidater till candidates-log.csv — fyll på utfall själv för Oraklet-mätning senare.)
+(1 nya verifierade Oraklet-bevakningar i oraklet-candidates.csv.)
+(2 nya SCA/SKF-observationer i short-squeeze-watch.csv.)
+
+⚠ Påminnelse: kandidatnivåerna bygger på 2026-10-26; jämför mot aktuell kurs.
+
+─────────────────────────────────────────────────────────────
+DIN DEL AV JOBBET:
+ 1. Bedöm rapportdatum och gap MANUELLT; rapporthistoriken spärrar inga affärer.
+ 2. Kandidater är INTE automatiska köp/sälj. Kräv bekräftat läge och rimlig spread.
+ 3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
+    (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
+ 4. LOGGA varje trade (setup, val, utfall). 20–30 trades är bara en första
+    indikation; statistisk edge kräver större urval och realistiska kostnader.
+Urvalsverktyg, inte rådgivning. Beslut och risk är dina.
+─────────────────────────────────────────────────────────────
