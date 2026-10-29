@@ -5,6 +5,11 @@ on:
     branches: ["main"]
     paths:
       - "omxs30-screener.js"
+      - "intraday-quality.js"
+      - "intraday-quality-tests.js"
+      - "notify.js"
+      - "report-format.js"
+      - "report-format-tests.js"
       - "short-quality.js"
       - "short-quality-tests.js"
       - "oraklet-quality.js"
@@ -42,6 +47,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
+
+      - name: Validate data quality and report formatting before any send
+        run: |
+          node --check omxs30-screener.js
+          node --check notify.js
+          node intraday-quality-tests.js
+          node report-format-tests.js
 
       - name: Välj handelsdag och kontrollera om listan redan skickats
         id: report
