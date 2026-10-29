@@ -14,6 +14,7 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { formatScreenerReport, splitTelegramChunks } = require('./report-format');
 
 const TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -31,9 +32,7 @@ async function sendTelegram(text) {
   }
   const header = `📊 ${script.replace('omxs30-', '').replace('.js', '').toUpperCase()} · ${process.env.REPORT_DATE || new Date().toISOString().slice(0, 10)}\n`;
   const full = header + text;
-  let s = full;
-  const chunks = [];
-  while (s.length > 0) { chunks.push(s.slice(0, 3800)); s = s.slice(3800); }
+  const chunks = splitTelegramChunks(full);
   for (const chunk of chunks) {
     const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       method: 'POST',
@@ -117,7 +116,7 @@ async function importDashboard(text) {
         return;
       }
 
-      const text = output.trim() || '(tom utskrift)';
+      const text = (isScreener ? formatScreenerReport(output) : output).trim() || '(tom utskrift)';
       if (isScreener) {
         fs.mkdirSync('report-outputs', { recursive: true });
         fs.writeFileSync(reportPath, text);
