@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { validateAndAggregateIntraday } = require('./intraday-quality');
 
 
 /**
@@ -104,23 +105,7 @@ async function reconstructDailyFromIntraday(ticker, targetDate) {
       const j = await res.json();
       const r = j?.chart?.result?.[0], q = r?.indicators?.quote?.[0];
       if (!r?.timestamp || !q) throw new Error('no intraday data');
-      const rows = [];
-      for (let i = 0; i < r.timestamp.length; i++) {
-        const date = new Intl.DateTimeFormat('en-CA', {
-          timeZone: 'Europe/Stockholm', year: 'numeric', month: '2-digit', day: '2-digit'
-        }).format(new Date(r.timestamp[i] * 1000));
-        if (date !== targetDate || q.close[i] == null) continue;
-        rows.push({ o:q.open[i], h:q.high[i], l:q.low[i], c:q.close[i], v:q.volume[i] ?? 0 });
-      }
-      if (!rows.length) throw new Error(`no intraday rows for ${targetDate}`);
-      return {
-        t: Math.floor(Date.parse(targetDate + 'T12:00:00Z') / 1000),
-        o: rows.find(x => x.o != null)?.o,
-        h: Math.max(...rows.map(x => x.h).filter(Number.isFinite)),
-        l: Math.min(...rows.map(x => x.l).filter(Number.isFinite)),
-        c: [...rows].reverse().find(x => x.c != null)?.c,
-        v: rows.reduce((s,x) => s + (Number.isFinite(x.v) ? x.v : 0), 0),
-      };
+      return validateAndAggregateIntraday(r.timestamp, q, targetDate, ticker);
     } catch (e) { lastErr = e; }
   }
   throw lastErr || new Error('intraday reconstruction failed');
@@ -423,7 +408,7 @@ async function main() {
   console.log('\n');
 
   if (failed.length) {
-    throw new Error(`Saknar prisserier: ${failed.slice(0, 8).join(', ')}${failed.length > 8 ? ` … +${failed.length - 8} till` : ''}. Ingen screening skickas.`);
+    throw new Error(`DATA_NOT_READY: Saknar prisserier: ${failed.slice(0, 8).join(', ')}${failed.length > 8 ? ` … +${failed.length - 8} till` : ''}. Ingen screening skickas.`);
   }
 
   let dataDate, delayed;
