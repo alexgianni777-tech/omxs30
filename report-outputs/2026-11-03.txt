@@ -1,0 +1,93 @@
+OMXS30 SCREENER · 2026-11-03
+Hämtar index + 30 bolag 
+..............................
+
+⚠⚠⚠ EN HANDELSDAGS FÖRDRÖJNING ⚠⚠⚠
+Rapportdag: 2026-11-03 · all ranking/entry/stop/mål använder gemensam stängningsdata från 2026-11-02.
+Detta är avsiktligt tillåtet. Jämför nivåerna mot aktuell kurs innan du tar en trade.
+Ingen serie blandas med nyare data; hela screeningen använder samma datadag.
+─────────────────────────────────────────────────────────────
+MARKNADSVÄDER  OMXS30 3287.0 | 5d    1.9% | 1m    0.8% | 3m   -1.2% | RSI  52
+               → MEDVIND (index över SMA50 & SMA200 — long-setups gynnade)
+
+=== 0B · ORAKLET TOPP 3 — trend + rapportkvalitet + relativ styrka ===
+    QUALIFIED = kvalitetssäkrad BEVAKNING, ALDRIG automatisk entry. D-1: 2026-11-02.
+    Bara verifierade och publicerade rapporter räknas. Positiv tillväxt OCH förbättrad jämförbar marginal krävs.
+    Hexagon | score 90/100 | RS3m +13.1 | RS1m +7.7 | organisk tillväxt 13.0% | marginalförändring +0.9 pp
+      OBS: NASTA_RAPPORTDATUM_EJ_VERIFIERAT
+    Saab | score 81/100 | RS3m +5.9 | RS1m +6.0 | organisk tillväxt 30.6% | marginalförändring +0.8 pp
+      OBS: NASTA_RAPPORTDATUM_EJ_VERIFIERAT
+    Granskning av övriga toppkandidater (WATCH, inte entry):
+      AstraZeneca | RAPPORTDATA_SAKNAS | score 70/100
+      Telia | SVAG_VOLYM, RAPPORTDATA_SAKNAS | score 70/100
+      Ericsson | SVAG_VOLYM, RAPPORT_MIXED | score 69/100
+      Evolution | RAPPORTDATA_SAKNAS | score 63/100
+      Getinge | RSI_UTANFOR_INTERVALL, SVAG_VOLYM, RAPPORTDATA_SAKNAS | score 60/100
+    Poängen är en transparent intern prioritering, INTE sannolikhet, konsensussurprise eller backtestad edge.
+
+=== 1 · MOMENTUM — relativ styrka mot index (fortsättnings-long) ===
+    Teknisk WATCH, inte entry eller fundamental kvalitetsstämpel. RSI högst 72.
+1. AstraZeneca     1814.00 | RS3m   18.6 | 1m   15.2% | RSI   71 | %B  1.06 | ATR    2.3% | vol  1.6x | ↔20dH   -0.4%
+      plan(LONG): entry ~1814.00 · stop 1764.63 (1.2×ATR) · mål 1896.29 (R/R 1.67) · 1R 1863.37 · måltyp 2×ATR · max 10 dagar
+2. Ericsson         108.80 | RS3m   14.1 | 1m   16.8% | RSI   64 | %B  0.77 | ATR    2.8% | vol  0.5x | ↔20dH   -1.5%
+      plan(LONG): entry ~108.80 · stop 105.13 (1.2×ATR) · mål 114.92 (R/R 1.67) · 1R 112.47 · måltyp 2×ATR · max 10 dagar
+3. Telia             48.88 | RS3m   14.7 | 1m   10.5% | RSI   64 | %B  0.83 | ATR    2.2% | vol  0.7x | ↔20dH   -1.0%
+      plan(LONG): entry ~48.88 · stop 47.56 (1.2×ATR) · mål 51.07 (R/R 1.67) · 1R 50.20 · måltyp 2×ATR · max 10 dagar
+
+=== 2 · SQUEEZE — hoptryckta Bollinger nära högsta (utbrottsvakt) ===
+    Låg bandbredd-percentil = laddad fjäder. Invänta utbrott — jaga inte i förväg.
+1. NIBE              45.66 | RS3m   15.0 | 1m    2.7% | RSI   56 | %B  0.87 | ATR    1.9% | vol  0.9x | ↔20dH   -1.3%
+      plan(LONG): entry ~45.66 · stop 44.63 (1.2×ATR) · mål 47.81 (R/R 2.08) · 1R 46.69 · måltyp 2.5×ATR · max 15 dagar
+2. Evolution        843.80 | RS3m   16.3 | 1m    5.2% | RSI   55 | %B  0.97 | ATR    2.0% | vol  0.8x | ↔20dH   -0.5%
+      plan(LONG): entry ~843.80 · stop 823.50 (1.2×ATR) · mål 886.09 (R/R 2.08) · 1R 864.10 · måltyp 2.5×ATR · max 15 dagar
+
+=== 3 · STUDS — översålda i intakt trend (rekyl-long, kort horisont) ===
+    RSI<35 eller under nedre bandet, men över SMA200 och positiv 3m.
+1. SCA              120.05 | RS3m   10.7 | 1m    0.4% | RSI   35 | %B  0.22 | ATR    1.8% | vol  0.8x | ↔20dH   -5.2%
+      plan(LONG): entry ~120.05 · stop 117.43 (1.2×ATR) · mål 123.32 (R/R 1.25) · 1R 122.67 · måltyp 1.5×ATR · max 5 dagar
+
+=== 4 · SVAGAST — kvalitetssäkrade shortbevakningar ===
+    WATCH, INTE entry: under SMA50, svag 1m relativt index, ej översåld/gapjakt/rapportnära. Stop/mål för underliggande aktie, inte derivatet.
+1. Atlas Copco      187.15 | RS3m   -9.8 | 1m  -10.8% | RSI   42 | %B  0.31 | ATR    3.4% | vol  0.7x | ↔20dH  -12.6%
+      plan(SHORT): entry ~187.15 · stop 194.89 (1.2×ATR) · mål 171.67 (R/R 2.00) · 1R 179.41 · måltyp 2.4×ATR · max 10 dagar
+2. Epiroc           247.00 | RS3m   -1.5 | 1m   -6.3% | RSI   43 | %B  0.20 | ATR    3.5% | vol  0.8x | ↔20dH  -10.4%
+      plan(SHORT): entry ~247.00 · stop 257.35 (1.2×ATR) · mål 226.29 (R/R 2.00) · 1R 236.65 · måltyp 2.4×ATR · max 10 dagar
+3. ABB              851.40 | RS3m  -10.9 | 1m  -14.0% | RSI   35 | %B  0.28 | ATR    3.3% | vol  1.1x | ↔20dH  -14.5%
+      plan(SHORT): entry ~851.40 · stop 885.33 (1.2×ATR) · mål 783.55 (R/R 2.00) · 1R 817.47 · måltyp 2.4×ATR · max 10 dagar
+\n=== 4B · SHORT-KVALITET — varför kandidater filtrerades ===
+   ABB | WATCH | kvalitet 85/100 | Manuell trigger/spread/produktkontroll krävs | OBS RAPPORTDATUM_EJ_VERIFIERAT, INDEX_OVER_SMA50
+   Atlas Copco | WATCH | kvalitet 95/100 | Manuell trigger/spread/produktkontroll krävs | OBS RAPPORTDATUM_EJ_VERIFIERAT, INDEX_OVER_SMA50
+   Volvo | WATCH | kvalitet 72/100 | Manuell trigger/spread/produktkontroll krävs | OBS RAPPORTDATUM_EJ_VERIFIERAT, INDEX_OVER_SMA50
+   Nordea | BLOCKED | kvalitet 85/100 | OVERSALD_RSI | OBS RAPPORTDATUM_EJ_VERIFIERAT, INDEX_OVER_SMA50
+   SEB | WATCH | kvalitet 75/100 | Manuell trigger/spread/produktkontroll krävs | OBS RAPPORTDATUM_EJ_VERIFIERAT, INDEX_OVER_SMA50
+   Alla shortbevakningar bygger på stängningsdata; rapportdatum som saknas måste kontrolleras. Kontrollera aktuell kurs, rekyl-/brottsignal, spread, hävstång och faktisk produktstop före handel.
+
+=== 5 · SHORT SQUEEZE / REVERSAL — separat observationslista ===
+   SCA 120.05 kr | blankning 8.14% (2026-10-30) | senaste förändring -0.01 procentenheter | 5–10 d trend: -0.25 p.e. | vol 0.8× | BEVAKA (ingen bekräftad entry) | ingen breakout/återtag med volym
+   SKF 279.90 kr | blankning 7.31% (2026-10-30) | senaste förändring -0.01 procentenheter | 5–10 d trend: -0.12 p.e. | vol 0.9× | BEVAKA (ingen bekräftad entry) | ingen breakout/återtag med volym
+   Kräver dessutom en manuellt verifierad katalysator, färsk kurs, faktisk spread och rimlig netto-R/R.
+   Signal baserad på D-1. Ingen automatisk affär; gamla eller saknade FI-data spärrar ENBART denna kategori.
+
+RAPPORTREAKTIONER — historik, INTE köp-/säljsignal
+   Atlas Copco A: 8 rapportdagar · 1 upp / 6 ned / 1 oförändrade · snitt -2.5% · median -2.7% · snittrörelse |%| 3.6% · sämst -7.8% · bäst +4.4% · senaste +4.4% (2026-07-16)
+   Hexagon B: 8 rapportdagar · 8 upp / 0 ned / 0 oförändrade · snitt +5.6% · median +5.3% · snittrörelse |%| 5.6% · sämst +1.1% · bäst +12.2% · senaste +12.2% (2026-07-29)
+   Verifierad historik: 2/30 bolag; övriga saknar underlag, inte neutralt utfall.
+   Rapporter hanteras manuellt. Historiken är liten och visar inte sannolikheten för nästa rapport.
+   Konsensusutfall: endast när historiska estimat och faktiskt utfall i samma mått är verifierade.
+
+(Loggade 9 kandidater till candidates-log.csv — fyll på utfall själv för Oraklet-mätning senare.)
+(2 nya verifierade Oraklet-bevakningar i oraklet-candidates.csv.)
+(2 nya SCA/SKF-observationer i short-squeeze-watch.csv.)
+
+⚠ Påminnelse: kandidatnivåerna bygger på 2026-11-02; jämför mot aktuell kurs.
+
+─────────────────────────────────────────────────────────────
+DIN DEL AV JOBBET:
+ 1. Bedöm rapportdatum och gap MANUELLT; rapporthistoriken spärrar inga affärer.
+ 2. Kandidater är INTE automatiska köp/sälj. Kräv bekräftat läge och rimlig spread.
+ 3. Positionsstorlek: riskera en FAST liten andel av kapitalet per trade
+    (stop-avståndet ovan ger kronor per aktie → antal aktier därefter).
+ 4. LOGGA varje trade (setup, val, utfall). 20–30 trades är bara en första
+    indikation; statistisk edge kräver större urval och realistiska kostnader.
+Urvalsverktyg, inte rådgivning. Beslut och risk är dina.
+─────────────────────────────────────────────────────────────
