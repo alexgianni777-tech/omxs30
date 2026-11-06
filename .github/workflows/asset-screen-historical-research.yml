@@ -1,0 +1,28 @@
+name: Asset Screen historical research (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install research dependencies
+        run: python -m pip install 'yfinance>=0.2.50,<1' 'pandas>=2.2,<3'
+      - name: Compile research script
+        run: python -m py_compile research/market_backtest.py
+      - name: Run research-only historical evaluation
+        run: python research/market_backtest.py --signals candidates-log.csv --out research_results
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asset-screen-historical-research
+          path: research_results/
+          if-no-files-found: warn
+          retention-days: 14
