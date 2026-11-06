@@ -98,7 +98,9 @@ assert.ok(snap22, 'FI snapshot must exist for 2026-10-22');
 assert.strictEqual(getInterest('SCA-B.ST','2026-10-22').shortPct,snap22.rows['SCA-B.ST'].shortPct);
 assert.strictEqual(getInterest('SKF-B.ST','2026-10-22').shortPct,7.53);
 assert.strictEqual(getInterest('SCA-B.ST','2026-09-01').status,'MISSING');
-assert.strictEqual(getInterest('SCA-B.ST','2026-11-10').status,'STALE');
+// Use an isolated historical fixture: live FI snapshots advance and can make a fixed future date fresh.
+const frozenFI = {snapshots:[{asOfDate:'2026-10-22',sourcePublished:'2026-10-22',source:'test',rows:{'SCA-B.ST':{shortPct:8.0}}}]};
+assert.strictEqual(getInterest('SCA-B.ST','2026-11-10',frozenFI).status,'STALE');
 assert.strictEqual(weekdaysApart('2026-10-22','2026-10-23'),1);
 assert.strictEqual(weekdaysApart('2026-10-23','2026-10-26'),1);
 const mockBars=Array.from({length:22},(_,i)=>({c:i===21?103:100,h:i===21?104:101,l:99}));
