@@ -28,7 +28,7 @@ def load(path):
 
 def evaluate(s,bars):
     future=[b for b in bars if b["date"]>s["date"]]
-    if len(future)<s["horizon"]: return "INCOMPLETE",None
+    has_full_window=len(future)>=s["horizon"]
     future=future[:s["horizon"]]; e=s["entry"]; st=s["stop"]; t=s["target"]; long=s["side"]=="LONG"; risk=abs(e-st)
     active=False
     for i,b in enumerate(future):
@@ -49,6 +49,7 @@ def evaluate(s,bars):
             if o>=st: return "GAP_STOP",(e-o)/risk
             if h>=st: return "STOP",-1.0
             if l<=t: return "TARGET",(e-t)/risk
+    if not has_full_window: return "INCOMPLETE",None
     if not active: return "NO_ENTRY",None
     last=future[-1]["close"]
     return "TIME_EXIT",((last-e) if long else (e-last))/risk
@@ -57,8 +58,13 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--signals",default="candidates-log.csv")
     ap.add_argument("--out",default="research_results")
+    ap.add_argument("--asof",default=date.today().isoformat(),help="Freeze results at this calendar date (YYYY-MM-DD)")
     args=ap.parse_args()
+    cutoff=date.fromisoformat(args.asof)
     signals,excluded=load(args.signals)
+    before=len(signals)
+    signals=[s for s in signals if date.fromisoformat(s['date'])<=cutoff]
+    excluded['after_cutoff']+=before-len(signals)
     out=Path(args.out);out.mkdir(exist_ok=True,parents=True)
     by=defaultdict(list)
     for s in signals: by[s["ticker"]].append(s)
@@ -66,7 +72,7 @@ def main():
     for ticker,items in sorted(by.items()):
         start=min(x["date"] for x in items)
         try:
-            df=yf.download(ticker,start=start,end=(date.today()+timedelta(days=1)).isoformat(),auto_adjust=False,actions=False,progress=False,threads=False)
+            df=yf.download(ticker,start=start,end=(cutoff+timedelta(days=1)).isoformat(),auto_adjust=False,actions=False,progress=False,threads=False)
             if df.empty: raise ValueError("empty history")
             if getattr(df.columns,"nlevels",1)>1: df.columns=df.columns.get_level_values(0)
             bars=[]
@@ -84,7 +90,7 @@ def main():
         sub=[r for r in results if r["kind"]==kind]
         valid=[r["gross_r"] for r in sub if r["gross_r"] is not None]
         by_kind[kind]={"plans":len(sub),"priced_exits":len(valid),"status_counts":dict(Counter(r["status"] for r in sub)),"gross_expectancy_r_conditional":sum(valid)/len(valid) if valid else None}
-    report={"label":"RESEARCH_ONLY_NOT_VALIDATED","note":"Unadjusted OHLC, no verified publication time, same-day order ambiguous, no costs or portfolio concurrency; gross expectancy is conditional and not tradable alpha.","plans":len(signals),"excluded":dict(excluded),"price_fetch_failures":fetch_fail,"categories":by_kind}
+    report={"cutoff":cutoff.isoformat(),"label":"RESEARCH_ONLY_NOT_VALIDATED","note":"Unadjusted OHLC, no verified publication time, same-day order ambiguous, no costs or portfolio concurrency; gross expectancy is conditional and not tradable alpha.","plans":len(signals),"excluded":dict(excluded),"price_fetch_failures":fetch_fail,"categories":by_kind}
     (out/"summary.json").write_text(json.dumps(report,indent=2,ensure_ascii=False))
     print(json.dumps(report,indent=2,ensure_ascii=False))
 if __name__=="__main__": main()
