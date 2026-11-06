@@ -26,6 +26,10 @@ class BacktestRegression(unittest.TestCase):
         self.assertEqual(evaluate(signal("SHORT"),[bar(2,100,101,99,100),bar(3,103,106,102,105),bar(4,105,107,104,106)]),("STOP",-1.))
     def test_incomplete(self):
         self.assertEqual(evaluate(signal(),[bar(2,100,102,99,101)]),("INCOMPLETE",None))
+    def test_partial_window_still_records_resolved_stop(self):
+        self.assertEqual(evaluate(signal(horizon=10),[bar(2,100,102,99,101),bar(3,90,94,88,90)]),("GAP_STOP",-2.))
+    def test_partial_window_still_records_resolved_target(self):
+        self.assertEqual(evaluate(signal(horizon=10),[bar(2,100,102,99,101),bar(3,103,111,102,110)]),("TARGET",2.))
     def test_no_same_day_entry(self):
         self.assertEqual(evaluate(signal(horizon=1),[bar(1,100,111,94,100),bar(2,100,102,99,101)]),("TIME_EXIT",.2))
 if __name__=="__main__":
