@@ -110,7 +110,7 @@ assert.strictEqual(alert.status,'TECHNICAL_WATCH');
 assert.strictEqual(alert.trigger,'20D_BREAKOUT');
 assert.strictEqual(alert.executable,false);
 assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',{...mock,vol:1.1},mockBars,'2026-10-22').status,'WATCH');
-assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',mock,mockBars,'2026-11-10').status,'DATA_STALE');
+assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',mock,mockBars,'2026-11-10',frozenFI).status,'DATA_STALE');
 const tempDir=fs.mkdtempSync(path.join(os.tmpdir(),'short-squeeze-test-'));
 try {
  const logPath=path.join(tempDir,'watch.csv');
