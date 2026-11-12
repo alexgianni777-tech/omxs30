@@ -98,7 +98,12 @@ assert.ok(snap22, 'FI snapshot must exist for 2026-10-22');
 assert.strictEqual(getInterest('SCA-B.ST','2026-10-22').shortPct,snap22.rows['SCA-B.ST'].shortPct);
 assert.strictEqual(getInterest('SKF-B.ST','2026-10-22').shortPct,7.53);
 assert.strictEqual(getInterest('SCA-B.ST','2026-09-01').status,'MISSING');
-assert.strictEqual(getInterest('SCA-B.ST','2026-11-10').status,'STALE');
+// Snapshot updates make fixed historical as-of dates fresh. Probe 14 calendar days after newest snapshot.
+const latestShortSnapshot = history.snapshots.map(v => v.asOfDate).sort().at(-1);
+const staleDateObj = new Date(latestShortSnapshot + 'T12:00:00Z');
+staleDateObj.setUTCDate(staleDateObj.getUTCDate() + 14);
+const staleProbeDate = staleDateObj.toISOString().slice(0,10);
+assert.strictEqual(getInterest('SCA-B.ST',staleProbeDate).status,'STALE');
 assert.strictEqual(weekdaysApart('2026-10-22','2026-10-23'),1);
 assert.strictEqual(weekdaysApart('2026-10-23','2026-10-26'),1);
 const mockBars=Array.from({length:22},(_,i)=>({c:i===21?103:100,h:i===21?104:101,l:99}));
@@ -108,7 +113,7 @@ assert.strictEqual(alert.status,'TECHNICAL_WATCH');
 assert.strictEqual(alert.trigger,'20D_BREAKOUT');
 assert.strictEqual(alert.executable,false);
 assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',{...mock,vol:1.1},mockBars,'2026-10-22').status,'WATCH');
-assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',mock,mockBars,'2026-11-10').status,'DATA_STALE');
+assert.strictEqual(evaluateShortSqueeze('SCA-B.ST',mock,mockBars,staleProbeDate).status,'DATA_STALE');
 const tempDir=fs.mkdtempSync(path.join(os.tmpdir(),'short-squeeze-test-'));
 try {
  const logPath=path.join(tempDir,'watch.csv');
