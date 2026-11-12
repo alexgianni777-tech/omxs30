@@ -484,7 +484,7 @@ async function main() {
     .sort((a, b) => a.bwPct - b.bwPct).slice(0, 2);
 
   // 3. STUDS — RSI<35 ELLER under nedre bandet, men i intakt längre trend
-  const bounce = [...rows].filter(qualifiesBounce);
+  const bounce = [...rows].filter(qualifiesBounce)
     .sort((a, b) => (a.pctB ?? 1) - (b.pctB ?? 1)).slice(0, 2);
 
   // 4. SVAGAST: only vetted short WATCH candidates reach the plan formatter.
