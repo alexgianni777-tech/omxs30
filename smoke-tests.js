@@ -125,3 +125,13 @@ assert.strictEqual(parseFiPage(fiHtml).rows['SKF-B.ST'].shortPct,7.53);
 assert.throws(()=>parseFiPage(fiHtml.replace('7,53','9999')),/felaktig/i);
 assert.throws(()=>parseFiPage(fiHtml.replace('549300FW5JDRV1IJ0M67','NOT-FOUND')),/Kan inte säkert/);
 console.log('SCA/SKF short squeeze smoke tests passed');
+
+// STUDS must match the description: RSI<35 OR Bollinger %B<0, in positive long trend.
+const { qualifiesBounce } = require('./bounce-criteria');
+const trend={above200:true,r63:8.1};
+assert.strictEqual(qualifiesBounce({...trend,rsi:44,pctB:0.02}),false,'SCA 44/0.02 is not below the lower band');
+assert.strictEqual(qualifiesBounce({...trend,rsi:34,pctB:0.30}),true);
+assert.strictEqual(qualifiesBounce({...trend,rsi:44,pctB:-0.01}),true);
+assert.strictEqual(qualifiesBounce({...trend,rsi:44,pctB:-0.01,above200:false}),false);
+assert.strictEqual(qualifiesBounce({...trend,rsi:null,pctB:null}),false);
+assert.strictEqual(qualifiesBounce({...trend,rsi:44,pctB:0}),false);
