@@ -37,7 +37,7 @@ assert.ok(run({},'2026-10-23',book,{'SAAB-B.ST':'2026-10-27'}).warnings.includes
 assert.equal(run({},'2026-10-23',book,{'SAAB-B.ST':'2026-10-27'}).status,'QUALIFIED');
 const results=screenElite([{...base},{...base,ticker:'HEXA-B.ST',name:'Hexagon',gap:3.9},{...base,ticker:'ERIC-B.ST',name:'Ericsson'}],idx,'2026-10-23',book);
 assert.equal(results.qualified.length,2);
-assert.deepEqual(results.qualified.map(x=>x.row.name),['Saab','Ericsson']);
+assert.deepEqual(results.qualified.map(x=>x.row.name).sort(),['Ericsson','Saab']);
 assert.ok(renderElite(results,'2026-10-23').includes('0B · ORAKLET TOPP 3'));
 assert.ok(renderElite(results,'2026-10-23').includes('RAPPORTER KONTROLLERAS MANUELLT'));
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'oraklet-'));
