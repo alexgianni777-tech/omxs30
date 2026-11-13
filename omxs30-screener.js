@@ -375,6 +375,7 @@ const { chooseCommonDataDate, ymd } = require('./data-date');
 const { summarizeProfile, profileLine } = require('./earnings-profile');
 const { WATCH_TICKERS, evaluateShortSqueeze, renderWatch, logWatch } = require('./short-squeeze');
 const { reviewShort, shortReviewLine } = require('./short-quality');
+const { qualifiesBounce } = require('./bounce-criteria');
 const { screenElite, renderElite, logElite } = require('./oraklet-quality');
 const REPORT_QUALITY = require('./report-quality.json');
 
@@ -483,9 +484,7 @@ async function main() {
     .sort((a, b) => a.bwPct - b.bwPct).slice(0, 2);
 
   // 3. STUDS — RSI<35 ELLER under nedre bandet, men i intakt längre trend
-  const bounce = [...rows]
-    .filter(r => ((r.rsi != null && r.rsi < 35) || (r.pctB != null && r.pctB < 0.05))
-              && r.above200 && (r.r63 ?? -1) > 0)
+  const bounce = [...rows].filter(qualifiesBounce)
     .sort((a, b) => (a.pctB ?? 1) - (b.pctB ?? 1)).slice(0, 2);
 
   // 4. SVAGAST: only vetted short WATCH candidates reach the plan formatter.
