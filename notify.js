@@ -40,6 +40,11 @@ async function sendTelegram(text) {
       body: JSON.stringify({ chat_id: CHAT_ID, text: '```\n' + chunk + '\n```', parse_mode: 'Markdown' }),
     });
     if (!res.ok) throw new Error('Telegram HTTP ' + res.status);
+    let body;
+    try { body = await res.json(); } catch { throw new Error('Telegram-svaret var inte giltig JSON'); }
+    if (!body || body.ok !== true || !body.result?.message_id) {
+      throw new Error('Telegram bekräftade inte meddelandet');
+    }
     await new Promise(r => setTimeout(r, 400));
   }
 }
