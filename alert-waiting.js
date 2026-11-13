@@ -14,7 +14,8 @@ async function main() {
 
   const text =
     '⏳ OMXS30-rapporten för ' + date + ' väntar på kompletta dagskurser från Yahoo. ' +
-    'GitHub försöker automatiskt igen var 20:e minut. Ingen gammal handelslista skickas.';
+    'GitHub provar igen under nästa schemalagda körning och kan även göra kortare återförsök. ' +
+    'Ingen gammal handelslista skickas.';
 
   const res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
     method: 'POST',

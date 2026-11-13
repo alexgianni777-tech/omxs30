@@ -134,7 +134,7 @@ jobs:
 
             # Ett enda informationsmeddelande per rapportdag. Markeringen sparas
             # efter steget så senare cron-körningar inte skickar samma status igen.
-            if [ "${RETRY:-}" = '1' ] && [ ! -f "waiting-report-alerts/$REPORT_DATE" ]; then
+            if [ ! -f "waiting-report-alerts/$REPORT_DATE" ]; then
               if node alert-waiting.js "$REPORT_DATE"; then
                 mkdir -p waiting-report-alerts
                 printf 'Väntestatus skickad %s\n' "$(date -u +%FT%TZ)" > "waiting-report-alerts/$REPORT_DATE"
@@ -219,3 +219,18 @@ jobs:
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
+
+      # A green check used to mean GitHub completed, even when no trading report
+      # was delivered (DATA_NOT_READY or an undelivered dashboard import).
+      # Make the operational result explicit; retain retries on subsequent runs.
+      - name: Mark missing trading report as a failed workflow
+        if: steps.send.outputs.waiting == 'data'
+        run: |
+          echo "::error::Ingen OMXS30-rapport skickades för $REPORT_DATE på grund av ofullständig prisdata. En ny schemalagd körning kan försöka igen."
+          exit 1
+
+      - name: Mark dashboard delivery as incomplete
+        if: steps.send.outputs.waiting == 'dashboard'
+        run: |
+          echo "::error::Telegram skickades men dashboard-import misslyckades för $REPORT_DATE. Återförsök sker vid nästa körning."
+          exit 1
