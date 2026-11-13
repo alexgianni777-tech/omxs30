@@ -42,8 +42,10 @@ function reviewShort(r, idx, dataDate, earningsDates = {}) {
 
   const reportDate = earningsDates[r.ticker] || null;
   const reportInWeekdays = reportDate ? weekdaysUntil(dataDate,reportDate) : null;
-  if (reportInWeekdays !== null && reportInWeekdays <= CONFIG.earningsBlockWeekdays) reasons.push('RAPPORT_INOM_5_HANDELSDAGAR');
+  // Short watch selection is technical only. Earnings dates are a manual pre-trade review.
+  if (reportInWeekdays !== null && reportInWeekdays <= CONFIG.earningsBlockWeekdays) warnings.push('RAPPORT_INOM_5_HANDELSDAGAR_MANUELL_KONTROLL');
   if (reportInWeekdays === null) warnings.push('RAPPORTDATUM_EJ_VERIFIERAT');
+  warnings.push('RAPPORTKONTROLL_MANUELL_FORE_ORDER');
   if (idx?.above50) warnings.push('INDEX_OVER_SMA50');
   if (!Number.isFinite(r.vol) || r.vol <= 0) warnings.push('VOLYMDATA_SAKNAS');
 
