@@ -1,6 +1,7 @@
 'use strict';
 
-// Oraklet: independent D-1 quality gate. A QUALIFIED setup is still only WATCH,
+// Oraklet: independent D-1 TECHNICAL gate; financial and earnings reports are reviewed manually.
+// A QUALIFIED setup is still only WATCH,
 // never an order, forecast or statistically validated trading edge.
 const fs = require('node:fs');
 const {weekdaysUntil} = require('./short-quality');
@@ -63,21 +64,21 @@ function reviewLong(row, index, dataDate, book = {}, upcoming = {}) {
   if (!index || !index.above50 && row.rs21 <= CONFIG.minRs21Headwind) reasons.push('INDEX_MOTVIND_KRAVER_MER_RS');
   if (row.vol < CONFIG.minVolumeRatio) reasons.push('SVAG_VOLYM');
   if (Math.abs(row.gap) >= CONFIG.maxAbsGapPct) reasons.push('STORT_RAPPORT_ELLER_DAGSGAP');
-  if (report.status !== 'STRONG') reasons.push(report.reason || 'RAPPORT_EJ_STARK');
+  // Manual report review is mandatory before a trade, but never a technical qualification prerequisite.
+  // Missing/weak/stale report information is informational; it cannot silently count as strong evidence.
+  warnings.push('RAPPORTKONTROLL_MANUELL_FORE_ORDER');
+  if (report.status !== 'STRONG') warnings.push(report.reason || 'RAPPORT_EJ_STARK');
   const nextReport = upcoming[row.ticker] || null;
   const until = nextReport ? weekdaysUntil(dataDate, nextReport) : null;
-  if (until !== null && until <= CONFIG.earningsBlockWeekdays) reasons.push('NY_RAPPORT_INOM_5_VARDAGAR');
+  if (until !== null && until <= CONFIG.earningsBlockWeekdays) warnings.push('NY_RAPPORT_INOM_5_VARDAGAR_MANUELL_KONTROLL');
   if (!nextReport || until === null) warnings.push('NASTA_RAPPORTDATUM_EJ_VERIFIERAT');
   if (report.daysSinceReport !== undefined && report.daysSinceReport <= 3) warnings.push('FARSK_RAPPORT_REKYL_RISK');
   const trendPoints = (row.c > row.sma50 ? 12 : 0) +
     (row.c > row.sma200 ? 10 : 0) + (row.r21 > 0 ? 8 : 0) +
     (row.rsi >= CONFIG.minRsi && row.rsi <= CONFIG.maxRsi ? 10 : 0);
   const rsPoints = 15 * clamp(row.rs21 / 8, 0, 1) + 15 * clamp(row.rs63 / 15, 0, 1);
-  const evidence = report.evidence;
-  const fundamentalPoints = report.status === 'STRONG'
-    ? 15 + clamp(evidence.organicGrowthYoYPct, 0, 20) / 4 +
-        clamp(evidence.marginDeltaPp, 0, 2) * 5 : 0;
-  const score = Math.round(clamp(trendPoints + rsPoints + fundamentalPoints,0,100));
+  // Score is based exclusively on technical criteria to avoid missing reports reducing rank.
+  const score = Math.round(clamp((trendPoints + rsPoints) / 70 * 100, 0, 100));
   return {status:reasons.length ? 'WATCH' : 'QUALIFIED', score, reasons, warnings, report};
 }
 
@@ -91,18 +92,16 @@ function screenElite(rows, index, dataDate, book = {}, upcoming = {}) {
 
 function renderElite(result, dataDate) {
   const out = [
-    '\n=== 0B · ORAKLET TOPP 3 — trend + rapportkvalitet + relativ styrka ===',
+    '\n=== 0B · ORAKLET TOPP 3 — teknisk trend + relativ styrka ===',
     '    QUALIFIED = kvalitetssäkrad BEVAKNING, ALDRIG automatisk entry. D-1: ' + dataDate + '.',
-    '    Bara verifierade och publicerade rapporter räknas. Positiv tillväxt OCH förbättrad jämförbar marginal krävs.'
+    '    RAPPORTER KONTROLLERAS MANUELLT av styrelsen före affär; rapportdata påverkar INTE urval eller poäng. En QUALIFIED-bevakning är ALDRIG en order.'
   ];
   if (!result.qualified.length) out.push('    0 kvalificerade idag — att avstå är en giltig signal.');
   for (const item of result.qualified) {
-    const e=item.review.report.evidence;
-    out.push('    ' + item.row.name + ' | score ' + item.review.score +
-      '/100 | RS3m +' + item.row.rs63.toFixed(1) +
-      ' | RS1m +' + item.row.rs21.toFixed(1) +
-      ' | organisk tillväxt ' + e.organicGrowthYoYPct.toFixed(1) +
-      '% | marginalförändring +' + e.marginDeltaPp.toFixed(1) + ' pp');
+    out.push('    ' + item.row.name + ' | teknisk score ' + item.review.score +
+      '/100 | RS3m ' + item.row.rs63.toFixed(1) +
+      ' | RS1m ' + item.row.rs21.toFixed(1) +
+      ' | rapport: kontrollera manuellt före affär');
     if (item.review.warnings.length) out.push('      OBS: ' + item.review.warnings.join(', '));
   }
   const near = result.reviewed
@@ -128,9 +127,10 @@ function logElite(date, dataDate, qualified, target = 'oraklet-candidates.csv') 
   for (const {row,review} of qualified) {
     const key=date + '|' + dataDate + '|' + row.ticker;
     if (keys.has(key)) continue;
-    const e=review.report.evidence;
+    // Preserve the existing CSV schema; absent manual report evidence must be empty, not invented.
+    const e=review.report.evidence || {};
     const vals=[date,dataDate,row.ticker,'LONG','QUALIFIED_WATCH',review.score,
-      row.c,row.rs63,row.rs21,e.organicGrowthYoYPct,e.marginDeltaPp,e.period,e.sourceUrl];
+      row.c,row.rs63,row.rs21,e.organicGrowthYoYPct ?? '',e.marginDeltaPp ?? '',e.period ?? '',e.sourceUrl ?? ''];
     fs.appendFileSync(target,vals.join(',')+'\n');
     keys.add(key);n++;
   }
