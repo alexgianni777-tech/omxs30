@@ -41,7 +41,10 @@ const INDEX_TICKER = '^OMX';
 const { getMembersForSession, exceptionsForSession } = require('./omxs30-membership');
 const { previousWeekday } = require('./data-date');
 const selectedReportDay = process.env.REPORT_DATE || require('./report-date')();
-const constituentAsOf = previousWeekday(selectedReportDay);
+// Membership follows the report/decision date (the day a new trade may be entered).
+// D-1 market prices are independent; using D-1 for membership would suggest
+// an ex-member on Dec 1 after official reconstitution.
+const constituentAsOf = selectedReportDay;
 const TICKERS = getMembersForSession(constituentAsOf);
 // This is a conservative 30-stock tradeable cohort. Temporary Nov 26–30
 // SKF Vertevo membership is recorded but NOT auto-ranked without OHLC/OOS proof.
