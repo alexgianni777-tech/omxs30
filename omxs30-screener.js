@@ -38,18 +38,15 @@ const { validateAndAggregateIntraday } = require('./intraday-quality');
  */
 
 const INDEX_TICKER = '^OMX';
-const TICKERS = [
-  ['ABB.ST','ABB'],            ['ALFA.ST','Alfa Laval'],    ['ASSA-B.ST','Assa Abloy'],
-  ['AZN.ST','AstraZeneca'],    ['ATCO-A.ST','Atlas Copco'], ['ALIV-SDB.ST','Autoliv'],
-  ['BOL.ST','Boliden'],        ['ELUX-B.ST','Electrolux'],  ['EPI-A.ST','Epiroc'],
-  ['ERIC-B.ST','Ericsson'],    ['ESSITY-B.ST','Essity'],    ['EVO.ST','Evolution'],
-  ['GETI-B.ST','Getinge'],     ['HEXA-B.ST','Hexagon'],     ['HM-B.ST','H&M'],
-  ['INVE-B.ST','Investor'],    ['NDA-SE.ST','Nordea'],      ['NIBE-B.ST','NIBE'],
-  ['SAAB-B.ST','Saab'],        ['SAND.ST','Sandvik'],       ['SCA-B.ST','SCA'],
-  ['SEB-A.ST','SEB'],          ['SHB-A.ST','Handelsbanken'],['SKA-B.ST','Skanska'],
-  ['SKF-B.ST','SKF'],          ['SSAB-A.ST','SSAB'],        ['SWED-A.ST','Swedbank'],
-  ['TEL2-B.ST','Tele2'],       ['TELIA.ST','Telia'],        ['VOLV-B.ST','Volvo'],
-];
+const { getMembersForSession, exceptionsForSession } = require('./omxs30-membership');
+const { previousWeekday } = require('./data-date');
+const selectedReportDay = process.env.REPORT_DATE || require('./report-date')();
+const constituentAsOf = previousWeekday(selectedReportDay);
+const TICKERS = getMembersForSession(constituentAsOf);
+// This is a conservative 30-stock tradeable cohort. Temporary Nov 26–30
+// SKF Vertevo membership is recorded but NOT auto-ranked without OHLC/OOS proof.
+const temporaryExceptions = exceptionsForSession(constituentAsOf);
+
 
 /* ------------------------- config (redigera fritt) ------------------------- */
 // Sätt din riskbudget per trade i kronor (det belopp du tål att förlora om stoppen nås).

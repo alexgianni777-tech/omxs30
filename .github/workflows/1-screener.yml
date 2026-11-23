@@ -5,6 +5,8 @@ on:
     branches: ["main"]
     paths:
       - "omxs30-screener.js"
+      - "omxs30-membership.js"
+      - "omxs30-membership-tests.js"
       - "intraday-quality.js"
       - "intraday-quality-tests.js"
       - "notify.js"
@@ -51,6 +53,7 @@ jobs:
       - name: Validate data quality and report formatting before any send
         run: |
           node --check omxs30-screener.js
+          node omxs30-membership-tests.js
           node --check notify.js
           node intraday-quality-tests.js
           node report-format-tests.js
