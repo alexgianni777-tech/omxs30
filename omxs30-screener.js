@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const { validateAndAggregateIntraday } = require('./intraday-quality');
+const { selectCompletedDailyBar } = require('./daily-quality');
 
 
 /**
@@ -111,6 +112,27 @@ async function reconstructDailyFromIntraday(ticker, targetDate) {
   throw lastErr || new Error('intraday reconstruction failed');
 }
 
+// The shorter 1-month daily range can expose an exact D-1 candle before
+// Yahoo's long historical range has refreshed. Check both hosts and accept
+// ONLY a fully validated target-date 1d OHLCV bar; otherwise fail closed to
+// existing intraday reconstruction (which must itself pass strict QA).
+async function fetchRecentConfirmedDaily(ticker, targetDate) {
+  const hosts=['query1.finance.yahoo.com','query2.finance.yahoo.com'];
+  let lastErr;
+  for (const host of hosts) {
+    try {
+      const url=`https://${host}/v8/finance/chart/${encodeURIComponent(ticker)}?range=1mo&interval=1d&events=div%2Csplit`;
+      const res=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0'}});
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const j=await res.json(),r=j?.chart?.result?.[0],q=r?.indicators?.quote?.[0];
+      const bar=selectCompletedDailyBar(r?.timestamp,q,targetDate,ticker);
+      if (!bar) throw new Error('target D-1 session missing from recent daily range');
+      return bar;
+    } catch (e) { lastErr=e; }
+  }
+  throw lastErr || new Error('recent 1d target unavailable');
+}
+
 async function fetchDaily(ticker, days = 400, tries = 3) {
   const to = Math.floor(Date.now() / 1000);
   const from = to - days * 86400;
@@ -135,14 +157,28 @@ async function fetchDaily(ticker, days = 400, tries = 3) {
       }
       if (bars.length < 220) throw new Error(`only ${bars.length} bars`);
 
-      // Yahoo can lag on Stockholm 1d bars even when intraday is complete.
-      // Repair ONLY the exact D-1 session required by this report from 5m bars.
+      // Source consistency: if the long 1d range lags, first try Yahoo's
+      // short 1d range. Never synthesize or accept a D-2 candle as D-1.
+      // Only if BOTH daily hosts fail do we try strictly validated 5m reconstruction.
       const targetDate = expectedDataDate();
       if (targetDate && !bars.some(b => new Date(b.t * 1000).toISOString().slice(0,10) === targetDate)) {
-        const repaired = await reconstructDailyFromIntraday(ticker, targetDate);
+        let repaired, method;
+        let dailyError;
+        try {
+          repaired = await fetchRecentConfirmedDaily(ticker, targetDate);
+          method = 'RECENT_DAILY';
+        } catch (e) {
+          dailyError = e;
+          try {
+            repaired = await reconstructDailyFromIntraday(ticker, targetDate);
+            method = 'INTRADAY';
+          } catch (intradayError) {
+            throw new Error(`D-1 recovery unavailable for ${ticker}: recent daily (${dailyError.message}); validated intraday (${intradayError.message})`);
+          }
+        }
         bars.push(repaired);
         bars.sort((a,b) => a.t - b.t);
-        console.log(`REPAIRED_INTRADAY ${ticker} ${targetDate} O=${repaired.o} H=${repaired.h} L=${repaired.l} C=${repaired.c} V=${repaired.v}`);
+        console.log(`REPAIRED_${method} ${ticker} ${targetDate} O=${repaired.o} H=${repaired.h} L=${repaired.l} C=${repaired.c} V=${repaired.v}`);
       }
 
       // --- FÄRSKHETSVAKT ---
