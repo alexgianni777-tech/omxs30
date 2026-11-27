@@ -56,6 +56,7 @@ jobs:
           node omxs30-membership-tests.js
           node --check notify.js
           node intraday-quality-tests.js
+          node daily-quality-tests.js
           node report-format-tests.js
 
       - name: Välj handelsdag och kontrollera om listan redan skickats
