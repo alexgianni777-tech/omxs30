@@ -25,5 +25,6 @@ jobs:
         run: |
           node omxs30-membership-tests.js
           node smoke-tests.js
+          node daily-quality-tests.js
           node short-quality-tests.js
           node oraklet-quality-tests.js
