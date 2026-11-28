@@ -383,6 +383,22 @@
           "positionDate": "2026-11-25"
         }
       }
+    },
+    {
+      "asOfDate": "2026-11-28",
+      "sourcePublished": "2026-11-28",
+      "source": "https://www.fi.se/sv/vara-register/blankningsregistret/",
+      "publisher": "Finansinspektionen",
+      "rows": {
+        "SCA-B.ST": {
+          "shortPct": 8.54,
+          "positionDate": "2026-11-26"
+        },
+        "SKF-B.ST": {
+          "shortPct": 7.4,
+          "positionDate": "2026-11-26"
+        }
+      }
     }
   ]
 }
